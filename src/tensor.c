@@ -112,3 +112,28 @@ Tensor* tensor_mul(mem_arena* arena, const Tensor* a, f32 c)
 	}
 	return new;
 }
+
+Tensor* tensor_matmul(mem_arena* arena, const Tensor* a, const Tensor* b)
+{
+	assert(a->ndim == 2 && a->ndim == b->ndim);
+	assert(a->shape[1] == b->shape[0]);
+
+	i32 shape[MAX_DIMS] = { a->shape[0], b->shape[1] };
+	Tensor* new = tensor_create(arena, shape, a->ndim, true);
+	for (i32 i = 0; i < a->shape[0]; ++i)
+	{
+		for (i32 j = 0; j < b->shape[1]; ++j)
+		{
+			f32 val = 0.0;
+			for (i32 k = 0; k < a->shape[1]; ++k)
+			{
+				i32 aidx = i * a->shape[1] + k;
+				i32 bidx = k * b->shape[1] + j;
+				val += a->data[aidx] * b->data[bidx];
+			}
+			i32 idx = i * new->shape[1] + j;
+			new->data[idx] = val;
+		}
+	}
+	return new;
+}
