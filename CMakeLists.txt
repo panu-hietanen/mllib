@@ -7,6 +7,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 add_executable(mllib
     src/main.c
     src/arena.c
+    src/tensor.c
 )
 
 target_include_directories(mllib PRIVATE src)
