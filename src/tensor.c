@@ -1,6 +1,6 @@
 #include "tensor.h"
 
-Tensor* tensor_create(mem_arena* arena, i32* shape, i32 ndim, bool non_zero)
+Tensor* tensor_create(mem_arena* arena, const i32* shape, i32 ndim, bool non_zero)
 {
 	u64 size = 1;
 	for (i32 i = 0; i < ndim; ++i)
@@ -67,10 +67,22 @@ void tensor_fill(Tensor* t, f32 val)
 
 Tensor* tensor_copy(mem_arena* arena, const Tensor* t)
 {
-	i32 shape[MAX_DIMS];
-	memcpy(shape, t->shape, t->ndim * sizeof(i32));
-	Tensor* new = tensor_create(arena, shape, t->ndim, true);
+	Tensor* new = tensor_create(arena, t->shape, t->ndim, true);
 	i32 elements = tensor_number_elements(t);
 	memcpy(new->data, t->data, elements * sizeof(f32));
+	return new;
+}
+
+Tensor* tensor_zeros(mem_arena* arena, i32* shape, i32 ndim)
+{
+	Tensor* new = tensor_create(arena, shape, ndim, true);
+	tensor_fill(new, 0.0);
+	return new;
+}
+
+Tensor* tensor_ones(mem_arena* arena, i32* shape, i32 ndim)
+{
+	Tensor* new = tensor_create(arena, shape, ndim, true);
+	tensor_fill(new, 1.0);
 	return new;
 }

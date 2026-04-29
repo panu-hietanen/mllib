@@ -11,7 +11,7 @@ typedef struct {
 	i32 ndim;
 } Tensor;
 
-Tensor* tensor_create(mem_arena* arena, i32* shape, i32 ndim, bool non_zero);
+Tensor* tensor_create(mem_arena* arena, const i32* shape, i32 ndim, bool non_zero);
 f32* tensor_at(const Tensor* t, i32* indices);
 void tensor_print(const Tensor* t);
 
