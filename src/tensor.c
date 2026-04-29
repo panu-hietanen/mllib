@@ -86,3 +86,29 @@ Tensor* tensor_ones(mem_arena* arena, i32* shape, i32 ndim)
 	tensor_fill(new, 1.0);
 	return new;
 }
+
+Tensor* tensor_add(mem_arena* arena, const Tensor* a, const Tensor* b)
+{
+	assert(a->ndim == b->ndim);
+	for (i32 i = 0; i < a->ndim; ++i)
+		assert(a->shape[i] == b->shape[i]);
+
+	Tensor* new = tensor_create(arena, a->shape, a->ndim, true);
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		new->data[i] = a->data[i] + b->data[i];
+	}
+	return new;
+}
+
+Tensor* tensor_mul(mem_arena* arena, const Tensor* a, f32 c)
+{
+	Tensor* new = tensor_create(arena, a->shape, a->ndim, true);
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		new->data[i] = a->data[i] * c;
+	}
+	return new;
+}

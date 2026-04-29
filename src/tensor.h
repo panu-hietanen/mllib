@@ -22,4 +22,7 @@ Tensor* tensor_copy(mem_arena* arena, const Tensor* t);
 Tensor* tensor_zeros(mem_arena* arena, i32* shape, i32 ndim);
 Tensor* tensor_ones(mem_arena* arena, i32* shape, i32 ndim);
 
+Tensor* tensor_add(mem_arena* arena, const Tensor* a, const Tensor* b);
+Tensor* tensor_mul(mem_arena* arena, const Tensor* a, f32 c);
+
 #endif // !TENSOR_H__
