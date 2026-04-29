@@ -48,3 +48,29 @@ void tensor_print(const Tensor* t)
 	}
 	printf("]\n");
 }
+
+int tensor_number_elements(const Tensor* t)
+{
+	int elements = 1;
+	for (size_t i = 0; i < t->ndim; ++i)
+	{
+		elements *= t->shape[i];
+	}
+	return elements;
+}
+
+void tensor_fill(Tensor* t, f32 val)
+{
+	int elements = tensor_number_elements(t);
+	for (size_t i = 0; i < elements; ++i) t->data[i] = val;
+}
+
+Tensor* tensor_copy(mem_arena* arena, const Tensor* t)
+{
+	int shape[MAX_DIMS];
+	memcpy(shape, t->shape, t->ndim * sizeof(int));
+	Tensor* new = tensor_create(arena, shape, t->ndim, true);
+	int elements = tensor_number_elements(t);
+	memcpy(new->data, t->data, elements * sizeof(f32));
+	return new;
+}
