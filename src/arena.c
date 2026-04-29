@@ -47,5 +47,3 @@ void arena_destroy(mem_arena* arena)
 {
 	free(arena);
 }
-
-

@@ -1,8 +1,6 @@
 #ifndef ARENA_H__
 #define ARENA_H__
 
-#include <windows.h>
-
 #include "config.h"
 
 typedef struct {
@@ -24,13 +22,5 @@ void arena_destroy(mem_arena* arena);
 #define PUSH_STRUCT_NZ(arena, T)		(T*)arena_push((arena), sizeof(T), true)
 #define PUSH_ARRAY(arena, T, n)			(T*)arena_push((arena), sizeof(T) * (n), false)
 #define PUSH_ARRAY_NZ(arena, T, n)		(T*)arena_push((arena), sizeof(T) * (n), true)
-
-
-u32 v_get_pagesize(void);
-
-void* v_mem_reserve(u64 size);
-bool v_mem_commit(void* ptr, u64 size);
-bool v_mem_decommit(void* ptr, u64 size);
-bool v_mem_release(void* ptr, u64 size);
 
 #endif // !ARENA_H__
