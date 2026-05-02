@@ -8,6 +8,7 @@ add_executable(mllib
     src/main.c
     src/arena.c
     src/tensor.c
+    src/node.c
 )
 
 target_include_directories(mllib PRIVATE src)

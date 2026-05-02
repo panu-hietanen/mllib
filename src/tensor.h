@@ -4,11 +4,14 @@
 #include "config.h"
 
 #include "arena.h"
+#include "node.h"
 
-typedef struct {
+typedef struct Tensor {
 	f32* data;
 	i32 shape[MAX_DIMS];
 	i32 ndim;
+	struct Tensor* grad;
+	Node* node;
 } Tensor;
 
 Tensor* tensor_create(mem_arena* arena, const i32* shape, i32 ndim, bool non_zero);
