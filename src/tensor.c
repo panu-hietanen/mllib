@@ -94,6 +94,27 @@ Tensor* tensor_ones(mem_arena* arena, i32* shape, i32 ndim)
 	return new;
 }
 
+Tensor* tensor_trans(mem_arena* arena, const Tensor* a)
+{
+	assert(a->ndim == 2);
+
+	i32 m = a->shape[0];
+	i32 n = a->shape[1];
+
+	i32 shape[MAX_DIMS] = { n, m };
+
+	Tensor* new = tensor_create(arena, shape, a->ndim, true);
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < m; ++i)
+	{
+		for (i32 j = 0; j < n; ++j)
+		{
+			new->data[j * m + i] = a->data[i * n + j];
+		}
+	}
+	return new;
+}
+
 Tensor* tensor_add(mem_arena* arena, const Tensor* a, const Tensor* b)
 {
 	assert(a->ndim == b->ndim);
@@ -145,23 +166,14 @@ Tensor* tensor_matmul(mem_arena* arena, const Tensor* a, const Tensor* b)
 	return new;
 }
 
-Tensor* tensor_trans(mem_arena* arena, const Tensor* a)
+Tensor* tensor_relu(mem_arena* arena, const Tensor* a)
 {
-	assert(a->ndim == 2);
-
-	i32 m = a->shape[0];
-	i32 n = a->shape[1];
-
-	i32 shape[MAX_DIMS] = { n, m };
-
-	Tensor* new = tensor_create(arena, shape, a->ndim, true);
+	Tensor* new = tensor_create(arena, a->shape, a->ndim, true);
 	i32 elements = tensor_number_elements(a);
-	for (i32 i = 0; i < m; ++i)
+	for (i32 i = 0; i < elements; ++i)
 	{
-		for (i32 j = 0; j < n; ++j)
-		{
-			new->data[j * m + i] = a->data[i * n + j];
-		}
+		new->data[i] = (a->data[i] > 0) ? a->data[i] : 0;
 	}
 	return new;
 }
+

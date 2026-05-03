@@ -22,6 +22,25 @@ Tensor* graph_matmul(mem_arena* arena, Tensor* a, Tensor* b)
 	return c;
 }
 
+Tensor* graph_relu(mem_arena* arena, Tensor* a)
+{
+	Tensor* c = tensor_relu(arena, a);
+	Node* node = PUSH_STRUCT(arena, Node);
+	node->inputs[0] = a;
+	node->inputs[1] = NULL;
+	node->backward = relu_backward;
+
+	node->aux = tensor_create(arena, a->shape, a->ndim, true);
+	Tensor* gt_zero = (Tensor*)node->aux;
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		gt_zero->data[i] = (a->data[i] > 0) ? true : false;
+	}
+	c->node = node;
+	return c;
+}
+
 void add_backward(mem_arena* arena, const Tensor* t)
 {
 	Tensor* a = t->node->inputs[0];
@@ -81,6 +100,22 @@ void matmul_backward(mem_arena* arena, const Tensor* t)
 			}
 			b->grad->data[cidx] += val;
 		}
+	}
+}
+
+void relu_backward(mem_arena* arena, const Tensor* t)
+{
+	assert(t->grad->ndim == t->node->inputs[0]->ndim);
+
+	Tensor* a = t->node->inputs[0];
+	if (a->grad == NULL)
+		a->grad = tensor_zeros(arena, a->shape, a->ndim);
+
+	Tensor* gt_zero = (Tensor*)t->node->aux;
+	i32 elements = tensor_number_elements(t);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		a->grad->data[i] += (gt_zero->data[i]) ? t->grad->data[i] : 0.0;
 	}
 }
 

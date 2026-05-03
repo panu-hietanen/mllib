@@ -8,6 +8,7 @@ typedef struct Tensor Tensor;
 typedef struct {
 	Tensor* inputs[2];
 	void (*backward)(mem_arena* arena, const Tensor*);
+	void* aux;
 } Node;
 
 #endif // !NODE_H__
