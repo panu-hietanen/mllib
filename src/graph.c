@@ -84,5 +84,36 @@ void matmul_backward(mem_arena* arena, const Tensor* t)
 	}
 }
 
-void backward(mem_arena* arena, const Tensor* t)
-{}
+i32 visit(Tensor** visited_list, i32 n, Tensor* t)
+{
+	if (t->visited) return n;
+	t->visited = true;
+	if (t->node != NULL)
+	{
+		for (i32 i = 0; i < 2; ++i)
+		{
+			Tensor* parent = t->node->inputs[i];
+			if (parent == NULL) continue;
+			n = visit(visited_list, n, parent);
+		}
+	}
+	visited_list[n++] = t;
+	return n;
+}
+
+void backward(mem_arena* arena, Tensor* t)
+{
+	t->grad = tensor_ones(arena, t->shape, t->ndim);
+	Tensor** visited_list = PUSH_ARRAY(arena, Tensor*, MAX_NODES);
+	i32 n = visit(visited_list, 0, t);
+	for (i32 i = n - 1; i >= 0; --i)
+	{
+		Tensor* curr = visited_list[i];
+		if (curr->node == NULL) continue;
+		curr->node->backward(arena, curr);
+	}
+	for (i32 i = 0; i < n; ++i)
+	{
+		visited_list[i]->visited = false;
+	}
+}

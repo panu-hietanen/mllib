@@ -10,6 +10,7 @@ typedef struct Tensor {
 	f32* data;
 	i32 shape[MAX_DIMS];
 	i32 ndim;
+	bool visited;
 	struct Tensor* grad;
 	Node* node;
 } Tensor;

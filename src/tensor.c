@@ -11,7 +11,13 @@ Tensor* tensor_create(mem_arena* arena, const i32* shape, i32 ndim, bool non_zer
 	t->data = arena_push(arena, size * sizeof(f32), non_zero);
 	memcpy(t->shape, shape, ndim * sizeof(i32));
 	t->ndim = ndim;
-	t->grad = arena_push(arena, size * sizeof(f32), true);
+	t->visited = false;
+
+	t->grad = arena_push(arena, sizeof(Tensor), true);
+	t->grad->data = arena_push(arena, size * sizeof(f32), false);
+	memcpy(t->grad->shape, shape, ndim * sizeof(i32));
+	t->grad->ndim = ndim;
+
 	t->node = NULL;
 	return t;
 }

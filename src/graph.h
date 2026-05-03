@@ -12,6 +12,7 @@ Tensor* graph_matmul(mem_arena* arena, Tensor* a, Tensor* b);
 void add_backward(mem_arena* arena, const Tensor* t);
 void matmul_backward(mem_arena* arena, const Tensor* t);
 
-void backward(mem_arena* arena, const Tensor* t);
+i32 visit(Tensor** visited_list, i32 n, Tensor* t);
+void backward(mem_arena* arena, Tensor* t);
 
 #endif // !GRAPH_H__
