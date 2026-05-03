@@ -28,6 +28,7 @@ Tensor* tensor_ones(mem_arena* arena, i32* shape, i32 ndim);
 Tensor* tensor_add(mem_arena* arena, const Tensor* a, const Tensor* b);
 Tensor* tensor_mul(mem_arena* arena, const Tensor* a, f32 c);
 Tensor* tensor_matmul(mem_arena* arena, const Tensor* a, const Tensor* b);
+Tensor* tensor_trans(mem_arena* arena, const Tensor* a);
 
 
 #endif // !TENSOR_H__
