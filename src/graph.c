@@ -53,7 +53,7 @@ void matmul_backward(mem_arena* arena, const Tensor* t)
 			i32 cidx = i * b->grad->shape[1] + j;
 			for (i32 k = 0; k < t->grad->shape[0]; ++k)
 			{
-				i32 aidx = k * a->shape[0] + i;
+				i32 aidx = k * a->shape[1] + i;
 				i32 bidx = k * t->shape[1] + j;
 				val += a->data[aidx] * t->grad->data[bidx];
 			}
