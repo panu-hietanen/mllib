@@ -10,6 +10,7 @@ add_executable(mllib
     src/tensor.c
     src/node.c
     src/graph.c
+    src/optimizer.c
 )
 
 target_include_directories(mllib PRIVATE src)
