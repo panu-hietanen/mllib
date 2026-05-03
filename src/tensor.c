@@ -177,3 +177,17 @@ Tensor* tensor_relu(mem_arena* arena, const Tensor* a)
 	return new;
 }
 
+Tensor* tensor_mse(mem_arena* arena, const Tensor* a, const Tensor* b)
+{
+	assert(a->ndim == 2 && a->ndim == b->ndim);
+	assert(a->shape[1] == 1);
+	Tensor* new = tensor_create(arena, (i32[]) { 1 }, 1, false);
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		new->data[0] += (a->data[i] - b->data[i]) * (a->data[i] - b->data[i]);
+	}
+	new->data[0] /= elements;
+	return new;
+}
+
