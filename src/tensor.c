@@ -105,6 +105,18 @@ Tensor* tensor_rand(mem_arena* arena, i32* shape, i32 ndim)
 	return new;
 }
 
+Tensor* tensor_xavier(mem_arena* arena, i32* shape, i32 ndim)
+{
+	Tensor* new = tensor_create(arena, shape, ndim, true);
+	f32 scale = 1.0f / sqrtf((f32)shape[0]);
+	i32 elements = tensor_number_elements(new);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		new->data[i] = scale * (((f32)rand() / (f32)RAND_MAX) * 2.0f - 1.0f);
+	}
+	return new;
+}
+
 Tensor* tensor_trans(mem_arena* arena, const Tensor* a)
 {
 	assert(a->ndim == 2);

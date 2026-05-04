@@ -13,7 +13,7 @@ int main()
 	srand(time(NULL));
 
 	i32 iters = 1000000;
-	f32 lr = 1e-2;
+	f32 lr = 1e-2f;
 
 	i32 shape_x[]      = { 4, 2 };
 	i32 shape_w1[]     = { 2, 4 };
@@ -40,8 +40,8 @@ int main()
 
 	Tensor* w1 = tensor_rand(arena_p, shape_w1, 2);
 	Tensor* w2 = tensor_rand(arena_p, shape_w2, 2);
-	Tensor* b1 = tensor_zeros(arena_p, shape_b1, 2);
-	Tensor* b2 = tensor_zeros(arena_p, shape_b2, 2);
+	Tensor* b1 = tensor_xavier(arena_p, shape_b1, 2);
+	Tensor* b2 = tensor_xavier(arena_p, shape_b2, 2);
 	Tensor* learnable[4] = {w1, w2, b1, b2 };
 
 	for (i32 it = 0; it < iters; ++it)
