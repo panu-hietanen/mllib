@@ -46,7 +46,7 @@ int main()
 		Tensor* out = graph_matmul(arena_t, h, w2);
 		Tensor* loss = graph_mse(arena_t, out, target);
 
-		if (it % 1000 == 0) tensor_print(loss);
+		if (it % (iters / 10) == 0) tensor_print(loss);
 
 		backward(arena_t, loss);
 		step(weights, 2, lr);
