@@ -1,4 +1,5 @@
 #include "config.h"
+#include <time.h>
 
 #include "arena.h"
 #include "tensor.h"
@@ -7,6 +8,7 @@
 int main()
 {
 	mem_arena* arena = arena_create(MiB(1));
+	srand(time(NULL));
 
 	i32 shape_x[]   = { 1, 2 };
 	i32 shape_w1[]  = { 2, 4 };
