@@ -132,20 +132,17 @@ void relu_backward(mem_arena* arena, const Tensor* t)
 
 void mse_backward(mem_arena* arena, const Tensor* t)
 {
-	assert(t->shape[1] == t->node->inputs[0]->shape[1]);
-	assert(t->shape[0] == 1 && t->shape[0] == t->node->inputs[0]->shape[0]);
+	assert(t->shape[0] == 1 && t->node->inputs[0]->shape[1] == 1);
 
 	Tensor* a = t->node->inputs[0];
 	Tensor* b = t->node->inputs[1];
 	if (a->grad == NULL)
 		a->grad = tensor_zeros(arena, a->shape, a->ndim);
-	if (b->grad == NULL)
-		b->grad = tensor_zeros(arena, b->shape, b->ndim);
 	
-	i32 elements = tensor_number_elements(t);
+	i32 elements = tensor_number_elements(a);
 	for (i32 i = 0; i < elements; ++i)
 	{
-		a->grad->data[i] += t->grad->data[i] * 2.0f * (a->data[i] - b->data[i]) / elements;
+		a->grad->data[i] += t->grad->data[0] * 2.0f * (a->data[i] - b->data[i]) / elements;
 	}
 }
 
