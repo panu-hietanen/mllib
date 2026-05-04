@@ -62,10 +62,18 @@ void add_backward(mem_arena* arena, const Tensor* t)
 		b->grad = tensor_zeros(arena, b->shape, b->ndim);
 
 	i32 elements = tensor_number_elements(t);
+	i32 t_rows = t->shape[0];
+	i32 t_cols = t->shape[1];
 	for (i32 i = 0; i < elements; ++i)
 	{
-		a->grad->data[i] += t->grad->data[i];
-		b->grad->data[i] += t->grad->data[i];
+		i32 r = i / t_cols;
+		i32 c = i % t_cols;
+
+		i32 aidx = (a->shape[0] == 1 ? 0 : r) * a->shape[1] + (a->shape[1] == 1 ? 0 : c);
+		i32 bidx = (b->shape[0] == 1 ? 0 : r) * b->shape[1] + (b->shape[1] == 1 ? 0 : c);
+
+		a->grad->data[aidx] += t->grad->data[i];
+		b->grad->data[bidx] += t->grad->data[i];
 	}
 }
 
