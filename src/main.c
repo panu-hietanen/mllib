@@ -12,15 +12,21 @@ int main()
 	mem_arena* arena_t = arena_create(MiB(1));
 	srand(time(NULL));
 
-	i32 iters = 1000000;
-	f32 lr = 1e-2f;
+	i32 iters = 100000;
+	f32 beta1 = 0.9;
+	f32 beta2 = 0.999;
+	f32 eps = 1e-8f;
+	f32 lr = 1e-3f;
+	OptimParams p = { .b1 = beta1, .b2 = beta2, .eps = eps, .lr = lr };
 
-	i32 shape_x[]      = { 4, 2 };
-	i32 shape_w1[]     = { 2, 4 };
-	i32 shape_w2[]     = { 4, 1 };
-	i32 shape_b1[]     = { 1, 4 };
-	i32 shape_b2[]     = { 1, 1 };
-	i32 shape_target[] = { 4, 1 };
+	i32 h1_size = 8;
+
+	i32 shape_x[]      = { 4	  , 2		};
+	i32 shape_w1[]     = { 2	  , h1_size };
+	i32 shape_w2[]     = { h1_size, 1		};
+	i32 shape_b1[]     = { 1	  , h1_size };
+	i32 shape_b2[]     = { 1	  , 1		};
+	i32 shape_target[] = { 4	  , 1		};
 
 	Tensor* x = tensor_create(arena_p, shape_x, 2, true);
 	x->data[0] = 0;
@@ -38,11 +44,17 @@ int main()
 	target->data[2] = 1;
 	target->data[3] = 0;
 
-	Tensor* w1 = tensor_rand(arena_p, shape_w1, 2);
-	Tensor* w2 = tensor_rand(arena_p, shape_w2, 2);
-	Tensor* b1 = tensor_xavier(arena_p, shape_b1, 2);
-	Tensor* b2 = tensor_xavier(arena_p, shape_b2, 2);
-	Tensor* learnable[4] = {w1, w2, b1, b2 };
+	Tensor* w1 = tensor_xavier(arena_p, shape_w1, 2);
+	Tensor* w2 = tensor_xavier(arena_p, shape_w2, 2);
+	Tensor* b1 = tensor_zeros(arena_p, shape_b1, 2);
+	Tensor* b2 = tensor_zeros(arena_p, shape_b2, 2);
+
+	AdamWeight aw1 = { w1, tensor_zeros(arena_p, shape_w1, 2), tensor_zeros(arena_p, shape_w1, 2) };
+	AdamWeight aw2 = { w2, tensor_zeros(arena_p, shape_w2, 2), tensor_zeros(arena_p, shape_w2, 2) };
+	AdamWeight ab1 = { b1, tensor_zeros(arena_p, shape_b1, 2), tensor_zeros(arena_p, shape_b1, 2) };
+	AdamWeight ab2 = { b2, tensor_zeros(arena_p, shape_b2, 2), tensor_zeros(arena_p, shape_b2, 2) };
+
+	AdamWeight* learnable[4] = { &aw1, &aw2, &ab1, &ab2 };
 
 	for (i32 it = 0; it < iters; ++it)
 	{
@@ -53,7 +65,7 @@ int main()
 		if (it % (iters / 10) == 0) tensor_print(loss);
 
 		backward(arena_t, loss);
-		step(learnable, 4, lr);
+		adam_step(learnable, 4, &p, it + 1);
 
 		arena_clear(arena_t);
 	}
@@ -70,8 +82,8 @@ int main()
 	printf("\n==========================================\n");
 	printf("=================RESULTS==================");
 	printf("\n==========================================\n");
-	Tensor* h = graph_relu(arena_t, graph_matmul(arena_t, x, w1));
-	Tensor* out = graph_matmul(arena_t, h, w2);
+	Tensor* h = graph_relu(arena_t, graph_add(arena_t, graph_matmul(arena_t, x, w1), b1));
+	Tensor* out = graph_add(arena_t, graph_matmul(arena_t, h, w2), b2);
 
 	tensor_print(out);
 
