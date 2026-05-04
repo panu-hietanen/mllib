@@ -129,14 +129,26 @@ Tensor* tensor_trans(mem_arena* arena, const Tensor* a)
 Tensor* tensor_add(mem_arena* arena, const Tensor* a, const Tensor* b)
 {
 	assert(a->ndim == b->ndim);
+	i32 shape_new[MAX_DIMS];
 	for (i32 i = 0; i < a->ndim; ++i)
-		assert(a->shape[i] == b->shape[i]);
+	{
+		assert(a->shape[i] == b->shape[i] || a->shape[i] == 1 || b->shape[i] == 1);
+		shape_new[i] = max(a->shape[i], b->shape[i]);
+	}
+	Tensor* new = tensor_create(arena, shape_new, a->ndim, true);
 
-	Tensor* new = tensor_create(arena, a->shape, a->ndim, true);
-	i32 elements = tensor_number_elements(a);
+	i32 elements = tensor_number_elements(new);
+	i32 out_rows = shape_new[0];
+	i32 out_cols = shape_new[1];
 	for (i32 i = 0; i < elements; ++i)
 	{
-		new->data[i] = a->data[i] + b->data[i];
+		i32 r = i / out_cols;
+		i32 c = i % out_cols;
+
+		i32 aidx = (a->shape[0] == 1 ? 0 : r) * a->shape[1] + (a->shape[1] == 1 ? 0 : c);
+		i32 bidx = (b->shape[0] == 1 ? 0 : r) * b->shape[1] + (b->shape[1] == 1 ? 0 : c);
+
+		new->data[i] = a->data[aidx] + b->data[bidx];
 	}
 	return new;
 }
