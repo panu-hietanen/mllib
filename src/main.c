@@ -8,10 +8,12 @@
 
 int main()
 {
+	// Initialise arenas and random seed
 	mem_arena* arena_p = arena_create(MiB(1));
 	mem_arena* arena_t = arena_create(MiB(1));
 	srand(time(NULL));
 
+	// Optimiser parameters
 	i32 iters = 100000;
 	f32 beta1 = 0.9;
 	f32 beta2 = 0.999;
@@ -19,15 +21,20 @@ int main()
 	f32 lr = 1e-3f;
 	OptimParams p = { .b1 = beta1, .b2 = beta2, .eps = eps, .lr = lr };
 
+	// NN Architecture
+	// Two hidden layers with a size of 8
+	// h = relu(x @ w1 + b1)
+	// out = h @ w2 + b2
 	i32 h1_size = 8;
 
-	i32 shape_x[]      = { 4	  , 2		};
-	i32 shape_w1[]     = { 2	  , h1_size };
-	i32 shape_w2[]     = { h1_size, 1		};
-	i32 shape_b1[]     = { 1	  , h1_size };
-	i32 shape_b2[]     = { 1	  , 1		};
-	i32 shape_target[] = { 4	  , 1		};
+	i32 shape_x     [] = { 4	  , 2			};
+	i32 shape_w1    [] = { 2	  , h1_size		};
+	i32 shape_b1    [] = { 1	  , shape_w1[1] };
+	i32 shape_w2    [] = { h1_size, 1			};
+	i32 shape_b2    [] = { 1	  , shape_w2[1] };
+	i32 shape_target[] = { 4	  , 1			};
 
+	// XOR example
 	Tensor* x = tensor_create(arena_p, shape_x, 2, true);
 	x->data[0] = 0;
 	x->data[1] = 0;
@@ -44,11 +51,13 @@ int main()
 	target->data[2] = 1;
 	target->data[3] = 0;
 
+	// Initialise weights and biases
 	Tensor* w1 = tensor_xavier(arena_p, shape_w1, 2);
 	Tensor* w2 = tensor_xavier(arena_p, shape_w2, 2);
-	Tensor* b1 = tensor_zeros(arena_p, shape_b1, 2);
-	Tensor* b2 = tensor_zeros(arena_p, shape_b2, 2);
+	Tensor* b1 = tensor_zeros (arena_p, shape_b1, 2);
+	Tensor* b2 = tensor_zeros (arena_p, shape_b2, 2);
 
+	// Create extra tensors for adam gradient steps
 	AdamWeight aw1 = { w1, tensor_zeros(arena_p, shape_w1, 2), tensor_zeros(arena_p, shape_w1, 2) };
 	AdamWeight aw2 = { w2, tensor_zeros(arena_p, shape_w2, 2), tensor_zeros(arena_p, shape_w2, 2) };
 	AdamWeight ab1 = { b1, tensor_zeros(arena_p, shape_b1, 2), tensor_zeros(arena_p, shape_b1, 2) };
@@ -56,17 +65,23 @@ int main()
 
 	AdamWeight* learnable[4] = { &aw1, &aw2, &ab1, &ab2 };
 
+	// Training loop
 	for (i32 it = 0; it < iters; ++it)
 	{
+		// FORWARD PASS (MSE loss function)
 		Tensor* h = graph_relu(arena_t, graph_add(arena_t, graph_matmul(arena_t, x, w1), b1));
 		Tensor* out = graph_add(arena_t, graph_matmul(arena_t, h, w2), b2);
 		Tensor* loss = graph_mse(arena_t, out, target);
 
 		if (it % (iters / 10) == 0) tensor_print(loss);
 
+		// BACKPROP
 		backward(arena_t, loss);
+
+		// TRAIN
 		adam_step(learnable, 4, &p, it + 1);
 
+		// CLEAR INTERMEDIATES
 		arena_clear(arena_t);
 	}
 
