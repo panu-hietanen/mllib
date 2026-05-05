@@ -226,3 +226,51 @@ Tensor* tensor_mse(mem_arena* arena, const Tensor* a, const Tensor* b)
 	return new;
 }
 
+Tensor* tensor_softmax(mem_arena* arena, const Tensor* a)
+{
+	assert(a->ndim == 2);
+
+	Tensor* new = tensor_create(arena, a->shape, a->ndim, true);
+
+	i32 a_rows = a->shape[0];
+	i32 a_cols = a->shape[1];
+
+	f32* max_val = PUSH_ARRAY(arena, f32, a_rows);
+	for (i32 r = 0; r < a_rows; ++r)
+	{
+		for (i32 c = 0; c < a_cols; ++c)
+		{
+			i32 idx = r * a_cols + c;
+			if (c == 0)
+			{
+				max_val[r] = a->data[idx];
+				continue;
+			}
+			if (a->data[idx] > max_val[r]) max_val[r] = a->data[idx];
+		}
+	}
+
+	f32* denom = PUSH_ARRAY(arena, f32, a_rows);
+	for (i32 r = 0; r < a_rows; ++r)
+	{
+		for (i32 c = 0; c < a_cols; ++c)
+		{
+			i32 idx = r * a_cols + c;
+			if (c == 0)
+			{
+				denom[r] = 0.0f;
+			}
+			denom[r] += expf(a->data[idx] - max_val[r]);
+		}
+	}
+	for (i32 r = 0; r < a_rows; ++r)
+	{
+		for (i32 c = 0; c < a_cols; ++c)
+		{
+			i32 idx = r * a_cols + c;
+			new->data[idx] = expf(a->data[idx] - max_val[r]) / denom[r];
+		}
+	}
+	return new;
+}
+
