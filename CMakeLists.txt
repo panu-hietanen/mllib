@@ -28,3 +28,4 @@ endmacro()
 
 # Examples
 add_example(spiral)
+add_example(spiral_ce)
