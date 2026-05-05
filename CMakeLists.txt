@@ -11,6 +11,7 @@ add_executable(mllib
     src/node.c
     src/graph.c
     src/optimizer.c
+    src/data.c
 )
 
 target_include_directories(mllib PRIVATE src)

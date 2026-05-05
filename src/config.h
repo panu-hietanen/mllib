@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
+
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 typedef int8_t i8;
