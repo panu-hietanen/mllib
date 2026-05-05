@@ -101,6 +101,12 @@ int main()
 	Tensor* out = graph_add(arena_t, graph_matmul(arena_t, h2, w3), b3);
 	Tensor* loss = graph_mse(arena_t, out, target);
 
+	Tensor* weights[6] = { w1, w2, w3, b1, b2, b3 };
+	data_save_tensors(weights, sizeof(weights) / sizeof(weights[0]), "..\\..\\..\\data\\spiral_weights.csv");
+
+	Tensor* plotting[2] = { x, out };
+	data_save_tensors(plotting, sizeof(plotting) / sizeof(plotting[0]), "..\\..\\..\\data\\spiral_data.csv");
+
 	printf("Final loss: ");
 	tensor_print(loss);
 

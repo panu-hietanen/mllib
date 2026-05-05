@@ -1,13 +1,63 @@
 #include "data.h"
 
-void data_save_weights(Tensor** weights, i32 n, const char* filename)
-{}
+void data_save_tensors(Tensor** weights, i32 n, const char* filename)
+{
+	FILE* fptr;
+	fptr = fopen(filename, "w");
+	assert(fptr != NULL);
+	for (i32 w = 0; w < n; ++w)
+	{
+		Tensor* weight = weights[w];
+		i32 elements = tensor_number_elements(weight);
+		fprintf(fptr, "%d,", weight->ndim);
+		for (i32 i = 0; i < weight->ndim; ++i)
+		{
+			fprintf(fptr, "%d,", weight->shape[i]);
+		}
+		for (i32 i = 0; i < elements; ++i)
+		{
+			fprintf(fptr, "%.9g", weight->data[i]);
+			if (i != elements - 1) 
+			{
+				fprintf(fptr, ",");
+			}
+			else
+			{
+				fprintf(fptr, "\n");
+			}
+		}
+	}
+	fclose(fptr);
+}
 
-void data_load_weights(Tensor** weights, i32 n, const char* filename)
-{}
+void data_load_weights(mem_arena* arena, Tensor** out, i32 n, const char* filename)
+{
+	FILE* fptr;
+	fptr = fopen(filename, "r");
+	assert(fptr != NULL);
 
-void data_export_csv(Tensor * x, Tensor * predictions, const char* filename)
-{}
+	for (i32 w = 0; w < n; ++w)
+	{
+		i32 ndim;
+		fscanf(fptr, "%d,", &ndim);
+
+		i32 shape[MAX_DIMS];
+		for (i32 i = 0; i < ndim; ++i)
+		{
+			fscanf(fptr, "%d,", &shape[i]);
+		}
+
+		Tensor* weight = tensor_create(arena, shape, ndim, true);
+		i32 elements = tensor_number_elements(weight);
+		for (i32 i = 0; i < elements; ++i)
+		{
+			fscanf(fptr, "%g", &weight->data[i]);
+			if (i != elements - 1) fscanf(fptr, ",");
+		}
+		fscanf(fptr, "\n");
+		out[w] = weight;
+	}
+}
 
 void data_generate_spiral(i32 n, Tensor* data, Tensor* target)
 {
