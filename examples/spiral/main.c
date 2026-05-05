@@ -96,6 +96,9 @@ int main()
 	printf("\n==========================================\n");
 	printf("=================RESULTS==================");
 	printf("\n==========================================\n");
+
+	data_generate_spiral(N, x, target);
+
 	Tensor* h1 = graph_relu(arena_t, graph_add(arena_t, graph_matmul(arena_t, x, w1), b1));
 	Tensor* h2 = graph_relu(arena_t, graph_add(arena_t, graph_matmul(arena_t, h1, w2), b2));
 	Tensor* out = graph_add(arena_t, graph_matmul(arena_t, h2, w3), b3);
@@ -112,4 +115,6 @@ int main()
 
 	arena_destroy(arena_p);
 	arena_destroy(arena_t);
+
+	getchar();
 }
