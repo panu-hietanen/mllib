@@ -16,8 +16,17 @@ add_library(mllib_core
 
 target_include_directories(mllib_core PUBLIC src)
 
+# Platform-specific options
 if (MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(mllib_core PRIVATE /fsanitize=address)
+elseif(NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(mllib_core PRIVATE -fsanitize=address)
+    target_link_options(mllib_core PUBLIC -fsanitize=address)
+endif()
+
+# Link math library on Linux
+if (UNIX)
+    target_link_libraries(mllib_core PUBLIC m)
 endif()
 
 # Helper macro to add examples
