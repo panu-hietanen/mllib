@@ -6,7 +6,7 @@ void data_save_tensors(Tensor** weights, i32 n, const char* filename)
 	fptr = fopen(filename, "w");
 	if (fptr == NULL)
 	{
-		printf("Error opening file '%s'", filename);
+		printf("Error opening file '%s'\n", filename);
 		return;
 	}
 	for (i32 w = 0; w < n; ++w)
@@ -40,7 +40,7 @@ void data_load_weights(mem_arena* arena, Tensor** out, i32 n, const char* filena
 	fptr = fopen(filename, "r");
 	if (fptr == NULL)
 	{
-		printf("Error opening file '%s'", filename);
+		printf("Error opening file '%s'\n", filename);
 		return;
 	}
 
