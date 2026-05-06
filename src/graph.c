@@ -3,10 +3,7 @@
 Tensor* graph_add(mem_arena* arena, Tensor* a, Tensor* b)
 {
 	Tensor* c = tensor_add(arena, a, b);
-	Node* node = PUSH_STRUCT(arena, Node);
-	node->inputs[0] = a;
-	node->inputs[1] = b;
-	node->backward = add_backward;
+	Node* node = node_create(arena, a, b, add_backward, NULL);
 	c->node = node;
 	return c;
 }
@@ -14,10 +11,7 @@ Tensor* graph_add(mem_arena* arena, Tensor* a, Tensor* b)
 Tensor* graph_matmul(mem_arena* arena, Tensor* a, Tensor* b)
 {
 	Tensor* c = tensor_matmul(arena, a, b);
-	Node* node = PUSH_STRUCT(arena, Node);
-	node->inputs[0] = a;
-	node->inputs[1] = b;
-	node->backward = matmul_backward;
+	Node* node = node_create(arena, a, b, matmul_backward, NULL);
 	c->node = node;
 	return c;
 }
@@ -25,18 +19,15 @@ Tensor* graph_matmul(mem_arena* arena, Tensor* a, Tensor* b)
 Tensor* graph_relu(mem_arena* arena, Tensor* a)
 {
 	Tensor* c = tensor_relu(arena, a);
-	Node* node = PUSH_STRUCT(arena, Node);
-	node->inputs[0] = a;
-	node->inputs[1] = NULL;
-	node->backward = relu_backward;
 
-	node->aux = tensor_create(arena, a->shape, a->ndim, true);
-	Tensor* gt_zero = (Tensor*)node->aux;
+	Tensor* gt_zero = tensor_create(arena, a->shape, a->ndim, true);
 	i32 elements = tensor_number_elements(a);
 	for (i32 i = 0; i < elements; ++i)
 	{
 		gt_zero->data[i] = (a->data[i] > 0) ? true : false;
 	}
+
+	Node* node = node_create(arena, a, NULL, relu_backward, gt_zero);
 	c->node = node;
 	return c;
 }
@@ -44,10 +35,7 @@ Tensor* graph_relu(mem_arena* arena, Tensor* a)
 Tensor* graph_mse(mem_arena* arena, Tensor* a, Tensor* b)
 {
 	Tensor* c = tensor_mse(arena, a, b);
-	Node* node = PUSH_STRUCT(arena, Node);
-	node->inputs[0] = a;
-	node->inputs[1] = b;
-	node->backward = mse_backward;
+	Node* node = node_create(arena, a, b, mse_backward, NULL);
 	c->node = node;
 	return c;
 }
