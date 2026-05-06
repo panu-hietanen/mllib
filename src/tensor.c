@@ -145,7 +145,7 @@ Tensor* tensor_add(mem_arena* arena, const Tensor* a, const Tensor* b)
 	for (i32 i = 0; i < a->ndim; ++i)
 	{
 		assert(a->shape[i] == b->shape[i] || a->shape[i] == 1 || b->shape[i] == 1);
-		shape_new[i] = max(a->shape[i], b->shape[i]);
+		shape_new[i] = MAX(a->shape[i], b->shape[i]);
 	}
 	Tensor* new = tensor_create(arena, shape_new, a->ndim, true);
 
