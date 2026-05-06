@@ -52,6 +52,28 @@ Tensor* graph_mse(mem_arena* arena, Tensor* a, Tensor* b)
 	return c;
 }
 
+Tensor* graph_softmax(mem_arena* arena, Tensor* a)
+{
+	Tensor* c = tensor_softmax(arena, a);
+	Node* node = PUSH_STRUCT(arena, Node);
+	node->inputs[0] = a;
+	node->inputs[1] = NULL;
+	node->backward = softmax_backward;
+	c->node = node;
+	return c;
+}
+
+Tensor* graph_ce(mem_arena* arena, Tensor* a, Tensor* b)
+{
+	Tensor* c = tensor_ce(arena, a, b);
+	Node* node = PUSH_STRUCT(arena, Node);
+	node->inputs[0] = a;
+	node->inputs[1] = b;
+	node->backward = ce_backward;
+	c->node = node;
+	return c;
+}
+
 void add_backward(mem_arena* arena, const Tensor* t)
 {
 	Tensor* a = t->node->inputs[0];
@@ -152,6 +174,14 @@ void mse_backward(mem_arena* arena, const Tensor* t)
 	{
 		a->grad->data[i] += t->grad->data[0] * 2.0f * (a->data[i] - b->data[i]) / elements;
 	}
+}
+
+void softmax_backward(mem_arena* arena, const Tensor* t)
+{
+}
+
+void ce_backward(mem_arena* arena, const Tensor* t)
+{
 }
 
 i32 visit(Tensor** visited_list, i32 n, Tensor* t)

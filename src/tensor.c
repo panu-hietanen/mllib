@@ -226,6 +226,28 @@ Tensor* tensor_mse(mem_arena* arena, const Tensor* a, const Tensor* b)
 	return new;
 }
 
+Tensor* tensor_ce(mem_arena* arena, const Tensor* a, const Tensor* b)
+{
+	assert(a->ndim == 2 && a->ndim == b->ndim);
+	for (i32 i = 0; i < a->ndim; ++i)
+		assert(a->shape[i] == b->shape[i]);
+	i32 a_rows = a->shape[0];
+	i32 a_cols = a->shape[1];
+
+	Tensor* new = tensor_create(arena, (i32[]) { 1 }, 1, false);
+	f32 loss = 0.0f;
+	for (i32 r = 0; r < a_rows; ++r)
+	{
+		for (i32 c = 0; c < a_cols; ++c)
+		{
+			i32 idx = r * a_cols + c;
+			loss -= b->data[idx] * logf(fmaxf(a->data[idx], 1e-7f));
+		}
+	}
+	new->data[0] = loss / a_rows;
+	return new;
+}
+
 Tensor* tensor_softmax(mem_arena* arena, const Tensor* a)
 {
 	assert(a->ndim == 2);

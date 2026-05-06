@@ -19,8 +19,10 @@ Tensor* tensor_create(mem_arena* arena, const i32* shape, i32 ndim, bool non_zer
 f32* tensor_at(const Tensor* t, i32* indices);
 void tensor_print(const Tensor* t);
 
+// Utility
 i32 tensor_number_elements(const Tensor* t);
 
+// Initialisation
 void tensor_fill(Tensor* t, f32 val);
 Tensor* tensor_copy(mem_arena* arena, const Tensor* t);
 Tensor* tensor_zeros(mem_arena* arena, i32* shape, i32 ndim);
@@ -28,12 +30,18 @@ Tensor* tensor_ones(mem_arena* arena, i32* shape, i32 ndim);
 Tensor* tensor_rand(mem_arena* arena, i32* shape, i32 ndim);
 Tensor* tensor_xavier(mem_arena* arena, i32* shape, i32 ndim);
 
+// Ops
 Tensor* tensor_trans(mem_arena* arena, const Tensor* a);
 Tensor* tensor_add(mem_arena* arena, const Tensor* a, const Tensor* b);
 Tensor* tensor_mul(mem_arena* arena, const Tensor* a, f32 c);
 Tensor* tensor_matmul(mem_arena* arena, const Tensor* a, const Tensor* b);
+
+// Nonlinearities
 Tensor* tensor_relu(mem_arena* arena, const Tensor* a);
-Tensor* tensor_mse(mem_arena* arena, const Tensor* a, const Tensor* b);
 Tensor* tensor_softmax(mem_arena* arena, const Tensor* a);
+
+// Loss functions
+Tensor* tensor_mse(mem_arena* arena, const Tensor* a, const Tensor* b);
+Tensor* tensor_ce(mem_arena* arena, const Tensor* a, const Tensor* b);
 
 #endif // !TENSOR_H__
