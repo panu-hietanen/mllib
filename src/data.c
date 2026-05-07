@@ -79,10 +79,32 @@ void data_generate_spiral(i32 n, Tensor* data, Tensor* target)
 			f32 x = t * cosf(t + offset[j]) + noise;
 			f32 y = t * sinf(t + offset[j]) + noise;
 
+			// Indexing into (2*n, 2) matrix. Column index is zero for x and one for y
+			// Term in brackets is therefore the row index with a stride of two
 			data->data  [(i + (n * j)) * 2    ] = x;
 			data->data  [(i + (n * j)) * 2 + 1] = y;
 
 			target->data[i + n * j] = j;
+		}
+	}
+}
+
+void data_generate_spiral_ce(i32 n, Tensor* data, Tensor* target)
+{
+	f32 offset[2] = { 0, M_PI };
+	for (i32 i = 0; i < n; ++i)
+	{
+		f32 t = 4.0f * (f32)M_PI * (f32)i / (f32)n;
+		for (i32 j = 0; j < 2; ++j)
+		{
+			f32 noise = (((f32)rand() / (f32)RAND_MAX) * 2.0f - 1.0f) * 0.2f;
+			f32 x = t * cosf(t + offset[j]) + noise;
+			f32 y = t * sinf(t + offset[j]) + noise;
+
+			data->data  [(i + (n * j)) * 2    ] = x;
+			data->data  [(i + (n * j)) * 2 + 1] = y;
+
+			target->data[(i + (n * j)) * 2 + j] = 1.0f;
 		}
 	}
 }
