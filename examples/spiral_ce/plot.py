@@ -21,13 +21,13 @@ def load_file(filename):
 
 def main():
     # Load results
-    tensors = load_file('data\\spiral_data.csv')
+    tensors = load_file('data/spiral_ce_data.csv')
     x    = tensors[0]  # shape [2N, 2]
-    pred = tensors[1]  # shape [2N, 1]
+    pred = tensors[1]  # shape [2N, 2]
 
     # Plot
-    pred_flat = pred[:, 0]
-    colors = ['blue' if p < 0.5 else 'red' for p in pred_flat]
+    pred_class = np.argmax(pred, axis=1)
+    colors = ['blue' if c == 0 else 'red' for c in pred_class]
 
     plt.figure(figsize=(8, 8))
     plt.scatter(x[:, 0], x[:, 1], c=colors, s=10, alpha=0.7)
@@ -39,7 +39,7 @@ def main():
         plt.scatter([], [], c='red',  label='Class 1')
     ])
     plt.tight_layout()
-    # plt.savefig('spiral_plot.png', dpi=150)
+    plt.savefig('plots/spiral_ce_plot.png', dpi=150)
     plt.show()
 
 if __name__ == "__main__":
