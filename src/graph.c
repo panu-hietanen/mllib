@@ -43,10 +43,7 @@ Tensor* graph_mse(mem_arena* arena, Tensor* a, Tensor* b)
 Tensor* graph_softmax(mem_arena* arena, Tensor* a)
 {
 	Tensor* c = tensor_softmax(arena, a);
-	Node* node = PUSH_STRUCT(arena, Node);
-	node->inputs[0] = a;
-	node->inputs[1] = NULL;
-	node->backward = softmax_backward;
+	Node* node = node_create(arena, a, NULL, softmax_backward, NULL);
 	c->node = node;
 	return c;
 }

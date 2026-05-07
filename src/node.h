@@ -11,6 +11,6 @@ typedef struct {
 	void* aux;
 } Node;
 
-Node* node_create(mem_arena* arena, const Tensor* a, const Tensor* b, void (*backward)(mem_arena* arena, const Tensor*), const void* aux);
+Node* node_create(mem_arena* arena, Tensor* a, Tensor* b, void (*backward)(mem_arena* arena, const Tensor*), void* aux);
 
 #endif // !NODE_H__
