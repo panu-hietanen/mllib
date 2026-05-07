@@ -51,10 +51,16 @@ Tensor* graph_softmax(mem_arena* arena, Tensor* a)
 Tensor* graph_ce(mem_arena* arena, Tensor* a, Tensor* b)
 {
 	Tensor* c = tensor_ce(arena, a, b);
-	Node* node = PUSH_STRUCT(arena, Node);
-	node->inputs[0] = a;
-	node->inputs[1] = b;
-	node->backward = ce_backward;
+	Node* node = node_create(arena, a, b, ce_backward, NULL);
+	c->node = node;
+	return c;
+}
+
+Tensor* graph_softmax_ce(mem_arena* arena, Tensor* a, Tensor* b)
+{
+	Tensor* softmax = tensor_softmax(arena, a);
+	Tensor* c = tensor_ce(arena, softmax, b);
+	Node* node = node_create(arena, a, b, softmax_ce_backward, softmax);
 	c->node = node;
 	return c;
 }
@@ -163,10 +169,66 @@ void mse_backward(mem_arena* arena, const Tensor* t)
 
 void softmax_backward(mem_arena* arena, const Tensor* t)
 {
+	assert(t->ndim == 2 && t->ndim == t->node->inputs[0]->ndim);
+	for (i32 i = 0; i < t->ndim; ++i)
+		assert(t->shape[i] == t->node->inputs[0]->shape[i]);
+
+	Tensor* a = t->node->inputs[0];
+	if (a->grad == NULL)
+		a->grad = tensor_zeros(arena, a->shape, a->ndim);
+
+	i32 a_rows = a->shape[0];
+	i32 a_cols = a->shape[1];
+
+	f32 dot_r[a_rows];
+	for (i32 r = 0; r < a_rows; ++r)
+	{
+		dot_r[r] = 0.0f;
+		for (i32 c = 0; c < a_cols; ++c)
+		{
+			i32 idx = r * a_cols + c;
+			dot_r[r] += t->data[idx] * t->grad->data[idx];
+		}
+	}
+
+	for (i32 r = 0; r < a_rows; ++r)
+	{
+		for (i32 c = 0; c < a_cols; ++c)
+		{
+			i32 idx = r * a_cols + c;
+			a->grad->data[idx] += t->data[idx] * (t->grad->data[idx] - dot_r[r]);
+		}
+	}
 }
 
 void ce_backward(mem_arena* arena, const Tensor* t)
 {
+	Tensor* a = t->node->inputs[0];
+	Tensor* b = t->node->inputs[1];
+	if (a->grad == NULL)
+		a->grad = tensor_zeros(arena, a->shape, a->ndim);
+
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		a->grad->data[i] += t->grad->data[0] * (-b->data[i] / (a->data[i] * a->shape[0]));
+	}
+	
+}
+
+void softmax_ce_backward(mem_arena* arena, const Tensor* t)
+{
+	Tensor* a = t->node->inputs[0];
+	Tensor* b = t->node->inputs[1];
+	if (a->grad == NULL)
+		a->grad = tensor_zeros(arena, a->shape, a->ndim);
+	
+	Tensor* softmax = (Tensor*)t->node->aux;
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		a->grad->data[i] += t->grad->data[0] * (softmax->data[i] - b->data[i]) / a->shape[0];
+	}
 }
 
 i32 visit(Tensor** visited_list, i32 n, Tensor* t)
