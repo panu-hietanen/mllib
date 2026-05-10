@@ -22,6 +22,8 @@ void tensor_print(const Tensor* t);
 // Utility
 i32 tensor_number_elements(const Tensor* t);
 Tensor* tensor_gather(mem_arena* arena, const Tensor* t, const i32* indices, i32 n);
+void tensor_set_data(Tensor* t, const f32* data, i32 n);
+void tensor_get_data(const Tensor* t, f32* data, i32 n);
 
 // Initialisation
 void tensor_fill(Tensor* t, f32 val);
