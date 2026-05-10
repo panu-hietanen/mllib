@@ -59,13 +59,16 @@ void data_load_weights(mem_arena* arena, Tensor** out, i32 n, const char* filena
 		i32 elements = tensor_number_elements(weight);
 		for (i32 i = 0; i < elements; ++i)
 		{
-			if (fscanf(fptr, "%g", &weight->data[i]) != 1) goto error;
 			if (i != elements - 1)
 			{
-				if (fscanf(fptr, ",") != 1) goto error;
+				if (fscanf(fptr, "%g,", &weight->data[i]) != 1) goto error;
+			}
+			else
+			{
+				if (fscanf(fptr, "%g", &weight->data[i]) != 1) goto error;
 			}
 		}
-		if (fscanf(fptr, "\n") != 1) goto error;
+		fscanf(fptr, "\n");
 		out[w] = weight;
 	}
 	return;
