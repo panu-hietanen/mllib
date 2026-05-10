@@ -1,9 +1,6 @@
 import ctypes
 import numpy as np
 import sys
-# sys.path.insert(0, "python")
-
-print(sys.path)
 
 from mllib._bindings import lib
 from mllib.tensor import Arena, Tensor
