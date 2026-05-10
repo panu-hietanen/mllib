@@ -67,6 +67,22 @@ i32 tensor_number_elements(const Tensor* t)
 	return elements;
 }
 
+Tensor *tensor_gather(mem_arena *arena, const Tensor *t, const i32 *indices, i32 n)
+{
+	assert(t->ndim == 2);
+
+	i32 rows = n;
+	i32 cols = t->shape[1];
+	i32 shape[MAX_DIMS] = { rows, cols };
+
+	Tensor* new = tensor_create(arena, shape, t->ndim, true);
+	for (i32 r = 0; r < rows; ++r)
+	{
+		memcpy(new->data + r * cols, t->data + indices[r] * cols, cols * sizeof(f32));
+	}
+	return new;
+}
+
 void tensor_fill(Tensor* t, f32 val)
 {
 	i32 elements = tensor_number_elements(t);
