@@ -6,6 +6,7 @@
 data/*
 plots/*
 CLAUDE.md
+train_data/*
 
 # User-specific files
 *.rsuser
