@@ -115,6 +115,4 @@ int main()
 
 	arena_destroy(arena_p);
 	arena_destroy(arena_t);
-
-	getchar();
 }
