@@ -42,7 +42,7 @@ int main()
 
 	i32 shape_target[] = { 2 * N  , 1			};
 
-	// XOR example
+	// Spiral example
 	Tensor* x = tensor_create(arena_p, shape_x, 2, true);
 	Tensor* target = tensor_create(arena_p, shape_target, 2, true);
 	data_generate_spiral(N, x, target);

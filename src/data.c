@@ -47,24 +47,32 @@ void data_load_weights(mem_arena* arena, Tensor** out, i32 n, const char* filena
 	for (i32 w = 0; w < n; ++w)
 	{
 		i32 ndim;
-		fscanf(fptr, "%d,", &ndim);
+		if (fscanf(fptr, "%d,", &ndim) != 1) goto error;
 
 		i32 shape[MAX_DIMS];
 		for (i32 i = 0; i < ndim; ++i)
 		{
-			fscanf(fptr, "%d,", &shape[i]);
+			if (fscanf(fptr, "%d,", &shape[i]) != 1) goto error;
 		}
 
 		Tensor* weight = tensor_create(arena, shape, ndim, true);
 		i32 elements = tensor_number_elements(weight);
 		for (i32 i = 0; i < elements; ++i)
 		{
-			fscanf(fptr, "%g", &weight->data[i]);
-			if (i != elements - 1) fscanf(fptr, ",");
+			if (fscanf(fptr, "%g", &weight->data[i]) != 1) goto error;
+			if (i != elements - 1)
+			{
+				if (fscanf(fptr, ",") != 1) goto error;
+			}
 		}
-		fscanf(fptr, "\n");
+		if (fscanf(fptr, "\n") != 1) goto error;
 		out[w] = weight;
 	}
+	return;
+error:
+	printf("Error reading file\n");
+	fclose(fptr);
+	return;
 }
 
 void data_generate_spiral(i32 n, Tensor* data, Tensor* target)
@@ -106,5 +114,16 @@ void data_generate_spiral_ce(i32 n, Tensor* data, Tensor* target)
 
 			target->data[(i + (n * j)) * 2 + j] = 1.0f;
 		}
+	}
+}
+
+void data_shuffle(i32 *indices, i32 n)
+{
+	for (i32 i = n - 1; i > 0; --i)
+	{
+		i32 j = rand() % (i + 1);
+		i32 tmp = indices[i];
+		indices[i] = indices[j];
+		indices[j] = tmp;
 	}
 }

@@ -14,10 +14,10 @@ int main()
 	mem_arena* arena_t = arena_create(MiB(10));
 	srand(time(NULL));
 
-	// Optimiser parameters
-	i32 iters = 100000;
-	i32 min_iters = 100;
-	
+	// Training parameters
+	i32 epochs = 5000;
+	i32 min_epochs = 1000;
+
 	f32 beta1 = 0.9;
 	f32 beta2 = 0.999;
 	f32 eps = 1e-8f;
@@ -32,6 +32,7 @@ int main()
 	i32 N = 200;
 
 	i32 shape_x     [] = { 2 * N  , 2			};
+	i32 shape_target[] = { 2 * N  , 2			};
 
 	i32 shape_w1    [] = { 2	  , n_hide 		};
 	i32 shape_b1    [] = { 1	  , shape_w1[1] };
@@ -41,8 +42,6 @@ int main()
 
 	i32 shape_w3    [] = { n_hide , 2			};
 	i32 shape_b3	[] = { 1	  , shape_w3[1] };
-
-	i32 shape_target[] = { 2 * N  , 2			};
 
 	// Spiral example
 	Tensor* x = tensor_create(arena_p, shape_x, 2, true);
@@ -69,30 +68,52 @@ int main()
 	AdamWeight* learnable[6] = { &aw1, &aw2, &aw3, &ab1, &ab2, &ab3 };
 	f32 tol = 1e-2f;
 
-	// Training loop
-	for (i32 it = 0; it < iters; ++it)
+	// Batch trainingg
+	i32 batch_size = 64;
+	i32* indices = PUSH_ARRAY(arena_p, i32, 2 * N);
+	for (i32 i = 0; i < 2 * N; ++i)
 	{
-		// FORWARD PASS (Cross Entropy loss function)
-		Tensor* h1 = graph_relu(arena_t, graph_add(arena_t, graph_matmul(arena_t, x , w1), b1));
-		Tensor* h2 = graph_relu(arena_t, graph_add(arena_t, graph_matmul(arena_t, h1, w2), b2));
-		Tensor* out = graph_add(arena_t, graph_matmul(arena_t, h2, w3), b3);
-		Tensor* loss = graph_softmax_ce(arena_t, out, target);
+		indices[i] = i;
+	}
+	i32 batches = (i32)(2 * N / batch_size);
 
-		if (it % (iters / 10) == 0) 
+	// Global step variable
+	i32 step = 1;
+
+	// Training loop
+	for (i32 epoch = 0; epoch < epochs; ++epoch)
+	{
+		data_shuffle(indices, 2 * N);
+		f32 batch_loss = 0.0f;
+		for (i32 it = 0; it < batches; ++it)
 		{
-			printf("iteration %d: ", it);
-			tensor_print(loss);
+			i32 batch_start = batch_size * it;
+			Tensor* x_batch = tensor_gather(arena_t, x, indices + batch_start, batch_size);
+			Tensor* t_batch = tensor_gather(arena_t, target, indices + batch_start, batch_size);
+			
+			// FORWARD PASS (Cross Entropy loss function)
+			Tensor *h1 = graph_relu(arena_t, graph_add(arena_t, graph_matmul(arena_t, x_batch, w1), b1));
+			Tensor *h2 = graph_relu(arena_t, graph_add(arena_t, graph_matmul(arena_t, h1, w2), b2));
+			Tensor *out = graph_add(arena_t, graph_matmul(arena_t, h2, w3), b3);
+			Tensor *loss = graph_softmax_ce(arena_t, out, t_batch);
+			batch_loss += loss->data[0];
+
+			// BACKPROP
+			backward(arena_t, loss);
+
+			// TRAIN
+			adam_step(learnable, sizeof(learnable) / sizeof(learnable[0]), &p, step++);
+
+			// CLEAR INTERMEDIATES
+			arena_clear(arena_t);
 		}
-
-		// BACKPROP
-		backward(arena_t, loss);
-
-		// TRAIN
-		adam_step(learnable, sizeof(learnable) / sizeof(learnable[0]), &p, it + 1);
-
-		if (loss->data[0] < tol && it > min_iters) break;
-		// CLEAR INTERMEDIATES
-		arena_clear(arena_t);
+		batch_loss /= batches;
+		if (epoch % (epochs / 10) == 0)
+		{
+			printf("epoch %d: loss = %f\n", epoch, batch_loss);
+		}
+		if (batch_loss < tol && epoch > min_epochs)
+			break;
 	}
 
 	printf("\n==========================================\n");
@@ -107,10 +128,10 @@ int main()
 	Tensor* loss = graph_softmax_ce(arena_t, out, target);
 
 	Tensor* weights[6] = { w1, w2, w3, b1, b2, b3 };
-	data_save_tensors(weights, sizeof(weights) / sizeof(weights[0]), "../../../data/spiral_ce_weights.csv");
+	data_save_tensors(weights, sizeof(weights) / sizeof(weights[0]), "../../../data/spiral_batch_weights.csv");
 
 	Tensor* plotting[2] = { x, out };
-	data_save_tensors(plotting, sizeof(plotting) / sizeof(plotting[0]), "../../../data/spiral_ce_data.csv");
+	data_save_tensors(plotting, sizeof(plotting) / sizeof(plotting[0]), "../../../data/spiral_batch_data.csv");
 
 	printf("Final loss: ");
 	tensor_print(loss);

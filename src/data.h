@@ -12,4 +12,6 @@ void data_load_weights(mem_arena* arena, Tensor** weights, i32 n, const char* fi
 void data_generate_spiral(i32 n, Tensor* data, Tensor* target);
 void data_generate_spiral_ce(i32 n, Tensor* data, Tensor* target);
 
+void data_shuffle(i32* indices, i32 n);
+
 #endif // !DATA_H__
