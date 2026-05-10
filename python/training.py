@@ -9,6 +9,8 @@ from mllib.tensor import Tensor
 
 n_datapoints = 400
 epochs = 5000
+min_epochs = 500
+tol = 1e-3
 
 x = np.zeros((n_datapoints, 2), dtype=np.float32)
 target = np.zeros((n_datapoints, 2), dtype=np.float32)
@@ -38,6 +40,7 @@ batches = n_datapoints // batch_size
 
 indices = np.arange(0, n_datapoints)
 for epoch in range(epochs):
+    epoch_loss = 0.0
     np.random.shuffle(indices)
     for i in range(batches):
         batch_start = i * batch_size
@@ -45,9 +48,15 @@ for epoch in range(epochs):
         batch_indices = indices[batch_start:batch_end]
         x_batch = x[batch_indices]
         t_batch = target[batch_indices]
-        loss = model.forward(x_batch, t_batch)
+        epoch_loss += model.forward(x_batch, t_batch)
 
         model.backward()
         model.step()
+    epoch_loss /= batches
+    if epoch > min_epochs and epoch_loss < tol:
+        break
     if epoch % 500 == 0:
-        print(f"epoch {epoch}: loss = {loss:.4f}")
+        print(f"epoch {epoch}: loss = {epoch_loss:.4f}")
+
+final_loss = model.forward(x, target)
+print(f"Final loss = {final_loss:.4f}")
