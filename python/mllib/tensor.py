@@ -1,3 +1,4 @@
+from __future__ import annotations
 import ctypes
 import numpy as np
 from numpy.typing import NDArray
@@ -27,15 +28,15 @@ class Tensor:
         self._ptr = ptr
 
     @staticmethod
-    def zeros(arena: Arena, shape: list[int]) -> "Tensor":
+    def zeros(arena: Arena, shape: list[int]) -> Tensor:
         return Tensor(tensor_zeros(arena._ptr, shape))
 
     @staticmethod
-    def xavier(arena: Arena, shape: list[int]) -> "Tensor":
+    def xavier(arena: Arena, shape: list[int]) -> Tensor:
         return Tensor(tensor_xavier(arena._ptr, shape))
 
     @staticmethod
-    def from_numpy(arena: Arena, array: NDArray) -> "Tensor":
+    def from_numpy(arena: Arena, array: NDArray) -> Tensor:
         t = Tensor.zeros(arena, list(array.shape))
         t.set_data(array)
         return t
