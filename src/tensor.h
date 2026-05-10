@@ -40,9 +40,11 @@ Tensor* tensor_matmul(mem_arena* arena, const Tensor* a, const Tensor* b);
 // Nonlinearities
 Tensor* tensor_relu(mem_arena* arena, const Tensor* a);
 Tensor* tensor_softmax(mem_arena* arena, const Tensor* a);
+Tensor* tensor_sigmoid(mem_arena* arena, const Tensor* a);
 
 // Loss functions
 Tensor* tensor_mse(mem_arena* arena, const Tensor* a, const Tensor* b);
 Tensor* tensor_ce(mem_arena* arena, const Tensor* a, const Tensor* b);
+Tensor* tensor_bce(mem_arena* arena, const Tensor* a, const Tensor* b);
 
 #endif // !TENSOR_H__

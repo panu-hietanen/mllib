@@ -48,6 +48,14 @@ Tensor* graph_softmax(mem_arena* arena, Tensor* a)
 	return c;
 }
 
+Tensor* graph_sigmoid(mem_arena* arena, Tensor* a)
+{
+	Tensor* c = tensor_sigmoid(arena, a);
+	Node* node = node_create(arena, a, NULL, sigmoid_backward, NULL);
+	c->node = node;
+	return c;
+}
+
 Tensor* graph_ce(mem_arena* arena, Tensor* a, Tensor* b)
 {
 	Tensor* c = tensor_ce(arena, a, b);
@@ -61,6 +69,15 @@ Tensor* graph_softmax_ce(mem_arena* arena, Tensor* a, Tensor* b)
 	Tensor* softmax = tensor_softmax(arena, a);
 	Tensor* c = tensor_ce(arena, softmax, b);
 	Node* node = node_create(arena, a, b, softmax_ce_backward, softmax);
+	c->node = node;
+	return c;
+}
+
+Tensor* graph_sigmoid_bce(mem_arena* arena, Tensor* a, Tensor* b)
+{
+	Tensor* sigmoid = tensor_sigmoid(arena, a);
+	Tensor* c = tensor_bce(arena, sigmoid, b);
+	Node* node = node_create(arena, a, b, sigmoid_bce_backward, sigmoid);
 	c->node = node;
 	return c;
 }
@@ -228,6 +245,34 @@ void softmax_ce_backward(mem_arena* arena, const Tensor* t)
 	for (i32 i = 0; i < elements; ++i)
 	{
 		a->grad->data[i] += t->grad->data[0] * (softmax->data[i] - b->data[i]) / a->shape[0];
+	}
+}
+
+void sigmoid_backward(mem_arena *arena, const Tensor* t)
+{
+	Tensor* a = t->node->inputs[0];
+	if (a->grad == NULL)
+		a->grad = tensor_zeros(arena, a->shape, a->ndim);
+
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		a->grad->data[i] += t->grad->data[i] * t->data[i] * (1.0f - t->data[i]);
+	}
+}
+
+void sigmoid_bce_backward(mem_arena *arena, const Tensor* t)
+{
+	Tensor* a = t->node->inputs[0];
+	Tensor* b = t->node->inputs[1];
+	if (a->grad == NULL)
+		a->grad = tensor_zeros(arena, a->shape, a->ndim);
+
+	Tensor* sigmoid = (Tensor*)t->node->aux;
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		a->grad->data[i] += (sigmoid->data[i] - b->data[i]) / a->shape[0];
 	}
 }
 

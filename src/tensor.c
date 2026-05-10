@@ -264,6 +264,27 @@ Tensor* tensor_ce(mem_arena* arena, const Tensor* a, const Tensor* b)
 	return new;
 }
 
+Tensor *tensor_bce(mem_arena *arena, const Tensor *a, const Tensor *b)
+{
+	assert(a->ndim == 2 && a->shape[1] == 1 && b->ndim == a->ndim);
+	for (i32 i = 0; i < a->ndim; ++i)
+		assert(a->shape[i] == b->shape[i]);
+	i32 a_rows = a->shape[0];
+	i32 a_cols = a->shape[1];
+
+	Tensor* new = tensor_create(arena, (i32[]) { 1 }, 1, false);
+	f32 loss = 0.0f;
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		f32 y = b->data[i];
+		f32 p = fminf(0.999f, fmaxf(a->data[i], 1e-7f));
+		loss -= y * logf(p) + (1 - y) * logf(1 - p);
+	}
+	new->data[0] = loss / elements;
+	return new;
+}
+
 Tensor* tensor_softmax(mem_arena* arena, const Tensor* a)
 {
 	assert(a->ndim == 2);
@@ -312,3 +333,16 @@ Tensor* tensor_softmax(mem_arena* arena, const Tensor* a)
 	return new;
 }
 
+Tensor *tensor_sigmoid(mem_arena *arena, const Tensor *a)
+{
+	assert(a->ndim == 2);
+
+	Tensor *new = tensor_create(arena, a->shape, a->ndim, true);
+
+	i32 elements = tensor_number_elements(a);
+	for (i32 i = 0; i < elements; ++i)
+	{
+		new->data[i] = 1 / (1 + expf(-a->data[i]));
+	}
+	return new;
+}
