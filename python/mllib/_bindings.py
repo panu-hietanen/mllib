@@ -1,7 +1,7 @@
 import ctypes
 from pathlib import Path
-_lib_path = Path(__file__).parent.parent.parent / "out/build/linux-release/libmllib.so"
 
+_lib_path = Path(__file__).parent.parent.parent / "out/build/linux-release/libmllib.so"
 lib = ctypes.CDLL(str(_lib_path))
 
 # ARENA
@@ -94,12 +94,89 @@ lib.adam_step_flat.restype = None
 
 # IO
 lib.data_save_tensors.argtypes = [ctypes.POINTER(ctypes.c_void_p),
-                                  ctypes.c_int,
-                                  ctypes.c_char_p]
-lib.data_save_tensors.restypes = None
+                                   ctypes.c_int,
+                                   ctypes.c_char_p]
+lib.data_save_tensors.restype = None
 
-lib.data_load_tensors.argtypes = [ctypes.c_void_p,
-                                  ctypes.POINTER(ctypes.c_void_p),
-                                  ctypes.c_int,
-                                  ctypes.c_char_p]
-lib.data_load_tensors.restypes = None
+lib.data_load_weights.argtypes = [ctypes.c_void_p,
+                                   ctypes.POINTER(ctypes.c_void_p),
+                                   ctypes.c_int,
+                                   ctypes.c_char_p]
+lib.data_load_weights.restype = None
+
+########################################################################### Typed wrappers
+
+# ARENA
+def arena_create(size: int) -> int:
+    return lib.arena_create(size)
+
+def arena_clear(arena: int) -> None:
+    lib.arena_clear(arena)
+
+def arena_destroy(arena: int) -> None:
+    lib.arena_destroy(arena)
+
+# TENSOR
+def tensor_zeros(arena: int, shape: list[int]) -> int:
+    arr = (ctypes.c_int * len(shape))(*shape)
+    return lib.tensor_zeros(arena, arr, len(shape))
+
+def tensor_ones(arena: int, shape: list[int]) -> int:
+    arr = (ctypes.c_int * len(shape))(*shape)
+    return lib.tensor_ones(arena, arr, len(shape))
+
+def tensor_xavier(arena: int, shape: list[int]) -> int:
+    arr = (ctypes.c_int * len(shape))(*shape)
+    return lib.tensor_xavier(arena, arr, len(shape))
+
+def tensor_fill(tensor: int, val: float) -> None:
+    lib.tensor_fill(tensor, val)
+
+def tensor_set_data(tensor: int, data: ctypes._Pointer[ctypes.c_float], n: int) -> None:
+    lib.tensor_set_data(tensor, data, n)
+
+def tensor_get_data(tensor: int, data: ctypes._Pointer[ctypes.c_float], n: int) -> None:
+    lib.tensor_get_data(tensor, data, n)
+
+def tensor_number_elements(tensor: int) -> int:
+    return lib.tensor_number_elements(tensor)
+
+# GRAPH
+def graph_add(arena: int, a: int, b: int) -> int:
+    return lib.graph_add(arena, a, b)
+
+def graph_matmul(arena: int, a: int, b: int) -> int:
+    return lib.graph_matmul(arena, a, b)
+
+def graph_relu(arena: int, a: int) -> int:
+    return lib.graph_relu(arena, a)
+
+def graph_sigmoid(arena: int, a: int) -> int:
+    return lib.graph_sigmoid(arena, a)
+
+def graph_softmax_ce(arena: int, a: int, b: int) -> int:
+    return lib.graph_softmax_ce(arena, a, b)
+
+def graph_sigmoid_bce(arena: int, a: int, b: int) -> int:
+    return lib.graph_sigmoid_bce(arena, a, b)
+
+def graph_mse(arena: int, a: int, b: int) -> int:
+    return lib.graph_mse(arena, a, b)
+
+def graph_ce(arena: int, a: int, b: int) -> int:
+    return lib.graph_ce(arena, a, b)
+
+def backward(arena: int, tensor: int) -> None:
+    lib.backward(arena, tensor)
+
+# OPTIMIZER
+def adam_step_flat(ws: ctypes.Array, ms: ctypes.Array, vs: ctypes.Array,
+                   n: int, b1: float, b2: float, eps: float, lr: float, t: int) -> None:
+    lib.adam_step_flat(ws, ms, vs, n, b1, b2, eps, lr, t)
+
+# IO
+def data_save_tensors(tensors: ctypes.Array, n: int, path: str) -> None:
+    lib.data_save_tensors(tensors, n, path.encode())
+
+def data_load_weights(arena: int, out: ctypes.Array, n: int, path: str) -> None:
+    lib.data_load_weights(arena, out, n, path.encode())
