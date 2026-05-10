@@ -41,3 +41,17 @@ add_example(spiral_ce)
 add_example(spiral_batch)
 add_example(spiral_bce)
 add_example(load_weights)
+
+# Python bindings
+add_library(mllib SHARED
+    src/arena.c
+    src/tensor.c
+    src/node.c
+    src/graph.c
+    src/optimizer.c
+    src/data.c
+)
+target_include_directories(mllib PUBLIC src)
+if (UNIX)
+    target_link_libraries(mllib PUBLIC m)
+endif()
