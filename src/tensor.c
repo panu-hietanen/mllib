@@ -86,13 +86,13 @@ Tensor *tensor_gather(mem_arena *arena, const Tensor *t, const i32 *indices, i32
 void tensor_set_data(Tensor *t, const f32 *data, i32 n)
 {
 	assert(tensor_number_elements(t) == n);
-	memcpy(t->data, data, n);
+	memcpy(t->data, data, n * sizeof(f32));
 }
 
 void tensor_get_data(const Tensor *t, f32 *data, i32 n)
 {
 	assert(tensor_number_elements(t) == n);
-	memcpy(data, t->data, n);
+	memcpy(data, t->data, n * sizeof(f32));
 }
 
 void tensor_fill(Tensor* t, f32 val)
