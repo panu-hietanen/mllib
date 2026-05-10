@@ -109,3 +109,7 @@ class Model:
                            self.b1, self.b2, self.eps, self.lr, self.n_step)
         self.n_step += 1
         self.arena_t.clear()
+
+    def save(self, path: str) -> None:
+        arr = (ctypes.c_void_p * self.n_weights)(*[t._ptr for t in self.ws])
+        lib.data_save_tensors(arr, self.n_weights, path.encode())

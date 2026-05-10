@@ -91,3 +91,15 @@ lib.adam_step_flat.argtypes = [ctypes.POINTER(ctypes.c_void_p),
                                 ctypes.c_float,
                                 ctypes.c_int]
 lib.adam_step_flat.restype = None
+
+# IO
+lib.data_save_tensors.argtypes = [ctypes.POINTER(ctypes.c_void_p),
+                                  ctypes.c_int,
+                                  ctypes.c_char_p]
+lib.data_save_tensors.restypes = None
+
+lib.data_load_tensors.argtypes = [ctypes.c_void_p,
+                                  ctypes.POINTER(ctypes.c_void_p),
+                                  ctypes.c_int,
+                                  ctypes.c_char_p]
+lib.data_load_tensors.restypes = None
