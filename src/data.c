@@ -68,7 +68,6 @@ void data_load_weights(mem_arena* arena, Tensor** out, i32 n, const char* filena
 				if (fscanf(fptr, "%g", &weight->data[i]) != 1) goto error;
 			}
 		}
-		fscanf(fptr, "\n");
 		out[w] = weight;
 	}
 	return;
