@@ -71,6 +71,12 @@ lib.graph_softmax_ce.restype = ctypes.c_void_p
 lib.graph_sigmoid_bce.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
 lib.graph_sigmoid_bce.restype = ctypes.c_void_p
 
+lib.graph_mse.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+lib.graph_mse.restype = ctypes.c_void_p
+
+lib.graph_ce.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+lib.graph_ce.restype = ctypes.c_void_p
+
 lib.backward.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
 lib.backward.restype = None
 
