@@ -9,5 +9,5 @@ Current key features:
 - Autograd for basic tensor operations
 - Broadcasting
 - Adam and SGD optimisers
-
-*Written in C11 using Visual Studio 26 on Windows 10.*
+- Weight saving/loading
+- Python bindings now present, with the Tensor, Model, and Arena classes allowing for training. An example training script is in "python/training.py"
