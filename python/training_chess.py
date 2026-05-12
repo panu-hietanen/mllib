@@ -44,9 +44,9 @@ def main():
             epoch_loss += model.forward(X, y)
             model.backward()
             model.step()
-            
+
             if n_chunks % 100 == 0:
-                print(f"epoch {epoch}, chunk {n_chunks}: loss = {epoch_loss / n_chunks:.4f}")
+                print(f"epoch {epoch}, chunk {n_chunks}: loss = {epoch_loss / (n_chunks + 1):.4f}")
             n += args.chunk_size
             n_chunks += 1
 
