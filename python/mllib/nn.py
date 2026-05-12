@@ -38,6 +38,14 @@ class Linear:
     def _parameters(self) -> tuple[list[Tensor], list[Tensor], list[Tensor]]:
         return self.ws, self.ms, self.vs
 
+    def _load(self, ws_ptrs: list[int], ms_ptrs: list[int], vs_ptrs: list[int]) -> None:
+        self.w._ptr  = ws_ptrs[0]
+        self.b._ptr  = ws_ptrs[1]
+        self.mw._ptr = ms_ptrs[0]
+        self.mb._ptr = ms_ptrs[1]
+        self.vw._ptr = vs_ptrs[0]
+        self.vb._ptr = vs_ptrs[1]
+
     def _forward(self, arena: Arena, x: Tensor) -> Tensor:
         return Tensor(graph_add(arena._ptr,
                           graph_matmul(arena._ptr, x._ptr, self.w._ptr),
@@ -145,11 +153,7 @@ class Model:
             print("Error saving optimiser state.")
 
     def load(self, path: str) -> None:
-        for tensors, arr_attr, suffix in [
-            (self.ws, "_ws_arr", ""),
-            (self.ms, "_ms_arr", "_m"),
-            (self.vs, "_vs_arr", "_v"),
-        ]:
+        for tensors, suffix in [(self.ws, ""), (self.ms, "_m"), (self.vs, "_v")]:
             out_arr = (ctypes.c_void_p * self.n_weights)()
             data_load_weights(self.arena_p._ptr, out_arr, self.n_weights, path + suffix + ".csv")
             for i in range(self.n_weights):
@@ -158,9 +162,7 @@ class Model:
                         f"Load failed: tensor {i} is null after reading '{path + suffix}.csv'. "
                         "Check the file exists and the model architecture matches."
                     )
-            for i, t in enumerate(tensors):
-                t._ptr = out_arr[i]
-            setattr(self, arr_attr, (ctypes.c_void_p * self.n_weights)(*[t._ptr for t in tensors]))
+                tensors[i].set_data(Tensor(out_arr[i]).to_numpy())
         try:
             with open(path + "_state.json") as f:
                 self.n_step = json.load(f)["n_step"]
