@@ -28,7 +28,7 @@ def fen_to_features(fen: str) -> NDArray:
     return features
             
 def load_chunk(path: str, skip: int, n: int) -> tuple[NDArray, NDArray]:
-    df = pd.read_csv(path, skiprows=range(1, skip+1), nrows=n, header=0)
+    df = pd.read_csv(path, skiprows=range(1, skip+1), nrows=n, header=0, dtype={"Evaluation": str})
     df_no_mate = df[~df["Evaluation"].str.startswith('#')]
 
     X = np.array([fen_to_features(fen) for fen in df_no_mate["FEN"]])
