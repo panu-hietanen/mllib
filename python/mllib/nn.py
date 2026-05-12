@@ -1,11 +1,12 @@
 import ctypes
+import json
 import numpy as np
 from numpy.typing import NDArray
 from ._bindings import (
     graph_add, graph_matmul, graph_relu, graph_sigmoid,
     graph_softmax_ce, graph_sigmoid_bce, graph_mse, graph_ce,
     adam_step_flat, backward,
-    data_save_tensors,
+    data_save_tensors, data_load_weights
 )
 from .tensor import Arena, Tensor
 
@@ -134,5 +135,22 @@ class Model:
         return result
 
     def save(self, path: str) -> None:
-        arr = (ctypes.c_void_p * self.n_weights)(*[t._ptr for t in self.ws])
-        data_save_tensors(arr, self.n_weights, path)
+        for tensors, suffix in [(self.ws, ""), (self.ms, "_m"), (self.vs, "_v")]:
+            arr = (ctypes.c_void_p * self.n_weights)(*[t._ptr for t in tensors])
+            data_save_tensors(arr, self.n_weights, path + suffix)
+        with open(path + "_state.json", "w") as f:
+            json.dump({"n_step": self.n_step}, f)
+
+    def load(self, path: str) -> None:
+        for tensors, arr_attr, suffix in [
+            (self.ws, "_ws_arr", ""),
+            (self.ms, "_ms_arr", "_m"),
+            (self.vs, "_vs_arr", "_v"),
+        ]:
+            out_arr = (ctypes.c_void_p * self.n_weights)()
+            data_load_weights(self.arena_p._ptr, out_arr, self.n_weights, path + suffix)
+            for i, t in enumerate(tensors):
+                t._ptr = out_arr[i]
+            setattr(self, arr_attr, (ctypes.c_void_p * self.n_weights)(*[t._ptr for t in tensors]))
+        with open(path + "_state.json") as f:
+            self.n_step = json.load(f)["n_step"]
