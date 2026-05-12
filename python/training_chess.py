@@ -13,13 +13,14 @@ def parse_args():
     p.add_argument("--lr",         type=float, default=1e-3)
     p.add_argument("--hidden",     type=int,   default=256)
     p.add_argument("--save",       type=bool,  default=True,           help="Whether to save weights or not")
-    p.add_argument("--save_path",  default="~/dev/data/chess_weights", help="Path prefix for saved weights")
+    p.add_argument("--save_path",  default="~/dev/mllib/data/chess_weights", help="Path prefix for saved weights")
     p.add_argument("--load",       default=None,                       help="Path prefix to resume from")
     return p.parse_args()
 
 def main():
     args = parse_args()
     data_path = os.path.expanduser(args.data)
+    save_path = os.path.expanduser(args.save_path)
     
     model = Model(
         layers=[Linear(FEATURES, args.hidden), ReLU(), Linear(args.hidden, 1)],
@@ -52,8 +53,8 @@ def main():
         epoch_loss /= n_chunks
         print(f"epoch {epoch} complete: average loss = {epoch_loss:.4f}")
         if args.save:
-            model.save(args.save_path)
-            print(f"saved to {args.save_path}")
+            model.save(save_path)
+            print(f"saved to {save_path}")
 
 if __name__ == "__main__":
     main()
