@@ -1,3 +1,4 @@
+import os
 import ctypes
 import numpy as np
 import sys
@@ -64,5 +65,23 @@ for epoch in range(epochs):
     if epoch % 500 == 0:
         print(f"epoch {epoch}: loss = {epoch_loss:.4f}")
 
+save_path = os.path.expanduser("~/dev/mllib/data/weights/test_weights")
+model.save(save_path)
+
 final_loss = model.forward(x, target)
 print(f"Final loss = {final_loss:.4f}")
+
+model2 = Model(
+    layers=[Linear(2, hidden_dims), ReLU(), Linear(hidden_dims, hidden_dims), ReLU(), Linear(hidden_dims, 2)],
+    loss="softmax_ce",
+    lr=1e-3,
+    b1=0.9,
+    b2=0.999,
+    eps=1e-8,
+    arena_size=1024 * 1024 * 64
+)
+
+model2.load(save_path)
+
+final_loss = model2.forward(x, target)
+print(f"Final loss (after reloading weights) = {final_loss:.4f}")
