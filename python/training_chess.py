@@ -3,18 +3,19 @@ import os
 import numpy as np
 
 from mllib.nn import Model, Linear, ReLU
-from mllib.data import load_chunk, FEATURES
+from mllib.data import load_chunk, load_preprocessed_chunk, FEATURES
 
 def parse_args():
     p = argparse.ArgumentParser(description="Train chess evaluation network")
-    p.add_argument("--data",       default="~/dev/mllib/train_data/random_evals.csv")
-    p.add_argument("--epochs",     type=int,   default=3)
-    p.add_argument("--chunk-size", type=int,   default=1000)
-    p.add_argument("--lr",         type=float, default=1e-3)
-    p.add_argument("--hidden",     type=int,   default=256)
-    p.add_argument("--save",       type=bool,  default=True,                         help="Whether to save weights or not")
-    p.add_argument("--save_path",  default="~/dev/mllib/data/weights/chess_weights", help="Path prefix for saved weights")
-    p.add_argument("--load",       default=None,                                     help="Path prefix to resume from")
+    p.add_argument("--data",         default="~/dev/mllib/train_data/random_evals.csv")
+    p.add_argument("--epochs",       type=int,   default=3)
+    p.add_argument("--chunk-size",   type=int,   default=1000)
+    p.add_argument("--lr",           type=float, default=1e-3)
+    p.add_argument("--hidden",       type=int,   default=256)
+    p.add_argument("--preprocessed", action="store_true", help="Use preprocessed .npy files; pass path prefix to --data, not the CSV")
+    p.add_argument("--no-save",      action="store_true", help="Disable saving weights after each epoch")
+    p.add_argument("--save-path",    default="~/dev/mllib/data/weights/chess_weights", help="Path prefix for saved weights")
+    p.add_argument("--load",         default=None,                                     help="Path prefix to resume from")
     return p.parse_args()
 
 def main():
@@ -38,7 +39,12 @@ def main():
         n = 0
         n_chunks = 0
         while True:
-            X, y = load_chunk(data_path, skip=n, n=args.chunk_size)
+            if args.preprocessed:
+                path_indices = data_path + "_X.npy"
+                path_labels = data_path + "_y.npy"
+                X, y = load_preprocessed_chunk(path_indices, path_labels, skip=n, n=args.chunk_size)
+            else:
+                X, y = load_chunk(data_path, skip=n, n=args.chunk_size)
             if len(X) == 0:
                 break
             epoch_loss += model.forward(X, y)
@@ -52,7 +58,7 @@ def main():
 
         epoch_loss /= n_chunks
         print(f"epoch {epoch} complete: average loss = {epoch_loss:.4f}")
-        if args.save:
+        if not args.no_save:
             model.save(save_path)
             print(f"saved to {save_path}")
 

@@ -90,3 +90,16 @@ def preprocess_data(path_read: str, path_save: str) -> None:
     evals = df_no_mate["Evaluation"].astype(float)
     y = (evals > 0).astype(np.float32).values.reshape(-1, 1)
     np.save(path_save + "_y", y)
+
+def load_preprocessed_chunk(indices_path: str, labels_path: str, skip: int, n: int) -> tuple[NDArray, NDArray]:
+    indices = np.load(indices_path, mmap_mode='r')[skip:skip+n]
+    labels = np.load(labels_path, mmap_mode='r')[skip:skip+n]
+    batch_size = len(indices)
+    if batch_size == 0:
+        return np.zeros((0, FEATURES), dtype=np.float32), np.zeros((0, 1), dtype=np.float32)
+    X = np.zeros((batch_size, FEATURES), dtype=np.float32)
+    rows = np.repeat(np.arange(batch_size), indices.shape[1])
+    cols = indices.flatten()
+    mask = cols != -1
+    X[rows[mask], cols[mask].astype(int)] = 1.0
+    return X, labels
