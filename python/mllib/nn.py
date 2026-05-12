@@ -151,10 +151,13 @@ class Model:
             (self.vs, "_vs_arr", "_v"),
         ]:
             out_arr = (ctypes.c_void_p * self.n_weights)()
-            try:
-                data_load_weights(self.arena_p._ptr, out_arr, self.n_weights, path + suffix + ".csv")
-            except Exception:
-                print("Error loading weights! They have been left uninitialised.")
+            data_load_weights(self.arena_p._ptr, out_arr, self.n_weights, path + suffix + ".csv")
+            for i in range(self.n_weights):
+                if out_arr[i] is None:
+                    raise RuntimeError(
+                        f"Load failed: tensor {i} is null after reading '{path + suffix}.csv'. "
+                        "Check the file exists and the model architecture matches."
+                    )
             for i, t in enumerate(tensors):
                 t._ptr = out_arr[i]
             setattr(self, arr_attr, (ctypes.c_void_p * self.n_weights)(*[t._ptr for t in tensors]))
@@ -164,3 +167,4 @@ class Model:
         except Exception:
             print("Error loading optimiser state. Step count set to one.")
             self.n_step = 1
+        self._loss = None
