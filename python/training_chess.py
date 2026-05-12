@@ -31,8 +31,9 @@ def main():
     )
 
     if args.load:
-        print(f"Resuming from {args.load}")
-        model.load(args.load)
+        load_path = os.path.expanduser(args.load)
+        print(f"Resuming from {load_path}")
+        model.load(load_path)
 
     for epoch in range(args.epochs):
         epoch_loss = 0.0
