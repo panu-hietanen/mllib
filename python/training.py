@@ -38,6 +38,12 @@ model = Model(
 batch_size = 64
 batches = n_datapoints // batch_size
 
+from mllib.data import load_chunk
+
+X, y = load_chunk("train_data/chessData.csv", skip=0, n=100)
+print(X.shape, y.shape)
+print(y[:5])
+
 indices = np.arange(0, n_datapoints)
 for epoch in range(epochs):
     epoch_loss = 0.0
