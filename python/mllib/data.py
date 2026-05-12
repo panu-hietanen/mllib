@@ -38,10 +38,7 @@ def fen_to_features(fen: str) -> NDArray:
     features[base + 4] = 1.0 if board.has_queenside_castling_rights(chess.BLACK) else 0.0
     if board.ep_square is not None:
         features[base + 5 + chess.square_file(board.ep_square)] = 1.0
-
-    padded = np.full(MAX_INDICES, -1, dtype=np.int16)
-    padded[:len(features)] = features
-    return padded
+    return features
 
 def fen_to_compact(fen: str) -> NDArray:
     board = chess.Board(fen)
@@ -68,8 +65,9 @@ def fen_to_compact(fen: str) -> NDArray:
         features.append(base + 4)
     if board.ep_square is not None:
         features.append(base + 5 + chess.square_file(board.ep_square))
-
-    return np.array(features, dtype=np.int32)
+    padded = np.full(MAX_INDICES, -1, dtype=np.int16)
+    padded[:len(features)] = features
+    return padded
             
 def load_chunk(path: str, skip: int, n: int) -> tuple[NDArray, NDArray]:
     df = pd.read_csv(path, skiprows=range(1, skip+1), nrows=n, header=0, dtype={"Evaluation": str})
