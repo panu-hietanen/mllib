@@ -128,7 +128,11 @@ int main()
 	Tensor* loss = graph_softmax_ce(arena_t, out, target);
 
 	Tensor* weights[6] = { w1, w2, w3, b1, b2, b3 };
-	data_save_tensors(weights, sizeof(weights) / sizeof(weights[0]), "../../../data/spiral_batch_weights.csv");
+	Tensor* ms[6] = { aw1.m, aw2.m, aw3.m, ab1.m, ab2.m, ab3.m };
+	Tensor* vs[6] = { aw1.v, aw2.v, aw3.v, ab1.v, ab2.v, ab3.v };
+	data_save_tensors(weights, sizeof(weights) / sizeof(weights[0]), "../../../data/weights/spiral_batch_weights.csv");
+	data_save_tensors(ms, sizeof(weights) / sizeof(weights[0]), "../../../data/weights/spiral_batch_ms.csv");
+	data_save_tensors(vs, sizeof(weights) / sizeof(weights[0]), "../../../data/weights/spiral_batch_vs.csv");
 
 	Tensor* plotting[2] = { x, out };
 	data_save_tensors(plotting, sizeof(plotting) / sizeof(plotting[0]), "../../../data/spiral_batch_data.csv");
