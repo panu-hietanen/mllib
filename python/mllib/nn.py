@@ -135,11 +135,14 @@ class Model:
         return result
 
     def save(self, path: str) -> None:
-        for tensors, suffix in [(self.ws, ""), (self.ms, "_m"), (self.vs, "_v")]:
+        for tensors, suffix in [(self.ws, ".csv"), (self.ms, "_m.csv"), (self.vs, "_v.csv")]:
             arr = (ctypes.c_void_p * self.n_weights)(*[t._ptr for t in tensors])
             data_save_tensors(arr, self.n_weights, path + suffix)
-        with open(path + "_state.json", "w") as f:
-            json.dump({"n_step": self.n_step}, f)
+        try:
+            with open(path + "_state.json", "w") as f:
+                json.dump({"n_step": self.n_step}, f)
+        except Exception:
+            print("Error saving optimiser state.")
 
     def load(self, path: str) -> None:
         for tensors, arr_attr, suffix in [
@@ -148,9 +151,16 @@ class Model:
             (self.vs, "_vs_arr", "_v"),
         ]:
             out_arr = (ctypes.c_void_p * self.n_weights)()
-            data_load_weights(self.arena_p._ptr, out_arr, self.n_weights, path + suffix)
+            try:
+                data_load_weights(self.arena_p._ptr, out_arr, self.n_weights, path + suffix + ".csv")
+            except Exception:
+                print("Error loading weights! They have been left uninitialised.")
             for i, t in enumerate(tensors):
                 t._ptr = out_arr[i]
             setattr(self, arr_attr, (ctypes.c_void_p * self.n_weights)(*[t._ptr for t in tensors]))
-        with open(path + "_state.json") as f:
-            self.n_step = json.load(f)["n_step"]
+        try:
+            with open(path + "_state.json") as f:
+                self.n_step = json.load(f)["n_step"]
+        except Exception:
+            print("Error loading optimiser state. Step count set to one.")
+            self.n_step = 1
