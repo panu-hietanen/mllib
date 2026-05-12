@@ -12,9 +12,9 @@ def parse_args():
     p.add_argument("--chunk-size", type=int,   default=1000)
     p.add_argument("--lr",         type=float, default=1e-3)
     p.add_argument("--hidden",     type=int,   default=256)
-    p.add_argument("--save",       type=bool,  default=True,           help="Whether to save weights or not")
-    p.add_argument("--save_path",  default="~/dev/mllib/data/chess_weights", help="Path prefix for saved weights")
-    p.add_argument("--load",       default=None,                       help="Path prefix to resume from")
+    p.add_argument("--save",       type=bool,  default=True,                         help="Whether to save weights or not")
+    p.add_argument("--save_path",  default="~/dev/mllib/data/weights/chess_weights", help="Path prefix for saved weights")
+    p.add_argument("--load",       default=None,                                     help="Path prefix to resume from")
     return p.parse_args()
 
 def main():
