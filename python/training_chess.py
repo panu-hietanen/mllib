@@ -14,6 +14,7 @@ def parse_args():
     p.add_argument("--hidden",       type=int,   default=256)
     p.add_argument("--preprocessed", action="store_true", help="Use preprocessed .npy files; pass path prefix to --data, not the CSV")
     p.add_argument("--no-save",      action="store_true", help="Disable saving weights after each epoch")
+    p.add_argument("--mirror",       action="store_true", help="Provide additional flipped datasets for training")
     p.add_argument("--save-path",    default="~/dev/mllib/data/weights/chess_weights", help="Path prefix for saved weights")
     p.add_argument("--load",         default=None,                                     help="Path prefix to resume from")
     return p.parse_args()
@@ -43,9 +44,9 @@ def main():
             if args.preprocessed:
                 path_indices = data_path + "_X.npy"
                 path_labels = data_path + "_y.npy"
-                X, y = load_preprocessed_chunk(path_indices, path_labels, skip=n, n=args.chunk_size)
+                X, y = load_preprocessed_chunk(path_indices, path_labels, skip=n, n=args.chunk_size, mirror=args.mirror)
             else:
-                X, y = load_chunk(data_path, skip=n, n=args.chunk_size)
+                X, y = load_chunk(data_path, skip=n, n=args.chunk_size, mirror=args.mirror)
             if len(X) == 0:
                 break
             epoch_loss += model.forward(X, y)
