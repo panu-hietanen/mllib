@@ -120,34 +120,37 @@ void matmul_backward(mem_arena* arena, const Tensor* t)
 	if (b->grad == NULL)
 		b->grad = tensor_zeros(arena, b->shape, b->ndim);
 
-	for (i32 i = 0; i < t->grad->shape[0]; ++i)
+	i32 batch = t->grad->shape[0];
+	i32 in    = a->shape[1];
+	i32 out   = b->shape[1];
+
+	for (i32 j = 0; j < in; ++j)
 	{
-		for (i32 j = 0; j < b->shape[0]; ++j)
+		const f32* restrict b_row = b->data + j * out;
+		for (i32 i = 0; i < batch; ++i)
 		{
-			f32 val = 0.0;
-			i32 cidx = i * a->grad->shape[1] + j;
-			for (i32 k = 0; k < b->shape[1]; ++k)
+			const f32* restrict tg_row = t->grad->data + i * out;
+			f32 val = 0.0f;
+			for (i32 k = 0; k < out; ++k)
 			{
-				i32 aidx = i * t->shape[1] + k;
-				i32 bidx = j * b->shape[1] + k;
-				val += t->grad->data[aidx] * b->data[bidx];
+				val += tg_row[k] * b_row[k];
 			}
-			a->grad->data[cidx] += val;
+			a->grad->data[i * in + j] += val;
 		}
 	}
-	for (i32 i = 0; i < a->shape[1]; ++i)
+
+	for (i32 k = 0; k < batch; ++k)
 	{
-		for (i32 j = 0; j < t->grad->shape[1]; ++j)
+		const f32* restrict tg_row = t->grad->data + k * out;
+		const f32* restrict a_row  = a->data        + k * in;
+		for (i32 i = 0; i < in; ++i)
 		{
-			f32 val = 0.0;
-			i32 cidx = i * b->grad->shape[1] + j;
-			for (i32 k = 0; k < t->grad->shape[0]; ++k)
+			f32* restrict bg_row = b->grad->data + i * out;
+			f32 a_ki = a_row[i];
+			for (i32 j = 0; j < out; ++j)
 			{
-				i32 aidx = k * a->shape[1] + i;
-				i32 bidx = k * t->shape[1] + j;
-				val += a->data[aidx] * t->grad->data[bidx];
+				bg_row[j] += a_ki * tg_row[j];
 			}
-			b->grad->data[cidx] += val;
 		}
 	}
 }

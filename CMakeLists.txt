@@ -22,6 +22,8 @@ if (MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 elseif(NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(mllib_core PRIVATE -fsanitize=address)
     target_link_options(mllib_core PUBLIC -fsanitize=address)
+elseif(NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(mllib_core PRIVATE -march=native)
 endif()
 
 # Link math library on Linux
@@ -54,4 +56,7 @@ add_library(mllib SHARED
 target_include_directories(mllib PUBLIC src)
 if (UNIX)
     target_link_libraries(mllib PUBLIC m)
+endif()
+if (NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(mllib PRIVATE -march=native)
 endif()

@@ -209,18 +209,23 @@ Tensor* tensor_matmul(mem_arena* arena, const Tensor* a, const Tensor* b)
 	assert(a->ndim == 2 && a->ndim == b->ndim);
 	assert(a->shape[1] == b->shape[0]);
 
-	i32 shape[MAX_DIMS] = { a->shape[0], b->shape[1] };
+	i32 M = a->shape[0];
+	i32 K = a->shape[1];
+	i32 N = b->shape[1];
+
+	i32 shape[MAX_DIMS] = { M, N };
 	Tensor* new = tensor_create(arena, shape, a->ndim, false);
-	for (i32 i = 0; i < a->shape[0]; ++i)
+	for (i32 i = 0; i < M; ++i)
 	{
-		for (i32 k = 0; k < a->shape[1]; ++k)
+		f32* restrict       out_row = new->data + i * N;
+		const f32* restrict a_row   = a->data   + i * K;
+		for (i32 k = 0; k < K; ++k)
 		{
-			f32 a_ik = a->data[i * a->shape[1] + k];
-			for (i32 j = 0; j < b->shape[1]; ++j)
+			f32 a_ik = a_row[k];
+			const f32* restrict b_row = b->data + k * N;
+			for (i32 j = 0; j < N; ++j)
 			{
-				i32 newidx = i * new->shape[1] + j;
-				i32 bidx = k * b->shape[1] + j;
-				new->data[newidx] += a_ik * b->data[bidx];
+				out_row[j] += a_ik * b_row[j];
 			}
 		}
 	}
