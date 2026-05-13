@@ -44,7 +44,7 @@ cd out/build/linux-release
 
 To make this even more like PyTorch, I wanted to be able to train in python using the standard techniques. I used ctypes for this as it seemed like the easiest to get started with. The arenas are hidden inside the `Model` class, leaving memory management out of the picture here (in classic python fashion).
 
-An example training script can be found in !(python/training_test.py)
+An example training script can be found ![here](python/training_test.py)
 ```python
 from mllib.nn import Model, Linear, ReLU
 
