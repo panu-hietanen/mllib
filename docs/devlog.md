@@ -1,3 +1,7 @@
+---
+title: Devlog
+---
+
 # mllib Devlog
 
 My experience building a machine learning library in C from scratch, with the long-term goal of training a chess evaluation network.
