@@ -70,7 +70,7 @@ The end goal is a neural network trained on Stockfish evaluations, allowing me t
 
 **Dataset:** `chessData.csv`: Taken from the [chess-evaluations](https://www.kaggle.com/datasets/ronakbadhe/chess-evaluations) dataset on Kaggle.
 
-**Feature encoding — 781 binary features per position:**
+**Feature encoding [781 binary features per position]:**
 - 0–767: piece positions (12 piece types × 64 squares)
 - 768: side to move
 - 769–772: castling rights
