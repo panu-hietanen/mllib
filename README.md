@@ -28,7 +28,7 @@ The library is built around four core types:
 
 The two-spiral problem — two interleaved spirals that are not linearly separable — used to validate the library end-to-end.
 
-![Spiral dataset](plots/spiral_bce_plot.png)
+![Spiral dataset](docs/spiral_bce_plot.png)
 
 A two-layer network (sigmoid + BCE) learns to classify it. Weights are saved to CSV and can be reloaded to resume training:
 
@@ -44,7 +44,7 @@ cd out/build/linux-release
 
 To make this even more like PyTorch, I wanted to be able to train in python using the standard techniques. I used ctypes for this as it seemed like the easiest to get started with. The arenas are hidden inside the `Model` class, leaving memory management out of the picture here (in classic python fashion).
 
-An example training script can be found ![here](python/training_test.py)
+An example training script can be found [here](python/training_test.py)
 ```python
 from mllib.nn import Model, Linear, ReLU
 
@@ -102,4 +102,4 @@ Build output directory is `out/build/<preset>/`.
 
 ## Devlog
 
-Full log of my process in making the project and some of the problems I ran into and design choices I had to make: [devlog](docs/devlog.md) *(coming soon)*
+Full log of my process in making the project and some of the problems I ran into and design choices I had to make: [devlog](docs/devlog.md)
