@@ -36,33 +36,43 @@ def main():
         print(f"Resuming from {load_path}")
         model.load(load_path)
 
-    for epoch in range(args.epochs):
-        epoch_loss = 0.0
-        n = 0
-        n_chunks = 0
-        while True:
-            if args.preprocessed:
-                path_indices = data_path + "_X.npy"
-                path_labels = data_path + "_y.npy"
-                X, y = load_preprocessed_chunk(path_indices, path_labels, skip=n, n=args.chunk_size, mirror=args.mirror)
-            else:
-                X, y = load_chunk(data_path, skip=n, n=args.chunk_size, mirror=args.mirror)
-            if len(X) == 0:
-                break
-            epoch_loss += model.forward(X, y)
-            model.backward()
-            model.step()
+    try:
+        for epoch in range(args.epochs):
+            epoch_loss = 0.0
+            n = 0
+            n_chunks = 0
+            while True:
+                if args.preprocessed:
+                    path_indices = data_path + "_X.npy"
+                    path_labels = data_path + "_y.npy"
+                    X, y = load_preprocessed_chunk(path_indices, path_labels, skip=n, n=args.chunk_size, mirror=args.mirror)
+                else:
+                    X, y = load_chunk(data_path, skip=n, n=args.chunk_size, mirror=args.mirror)
+                if len(X) == 0:
+                    break
+                epoch_loss += model.forward(X, y)
+                model.backward()
+                model.step()
 
-            if n_chunks % 100 == 0:
-                print(f"epoch {epoch}, chunk {n_chunks}: loss = {epoch_loss / (n_chunks + 1):.4f}")
-            n += args.chunk_size
-            n_chunks += 1
+                if n_chunks % 100 == 0:
+                    print(f"epoch {epoch}, chunk {n_chunks}: loss = {epoch_loss / (n_chunks + 1):.4f}")
+                if not args.no_save and n_chunks % 5000 == 0:
+                    model.save(save_path)
+                    print(f"saved to {save_path}")
+        
+                n += args.chunk_size
+                n_chunks += 1
 
-        epoch_loss /= n_chunks
-        print(f"epoch {epoch} complete: average loss = {epoch_loss:.4f}")
+            epoch_loss /= n_chunks
+            print(f"epoch {epoch} complete: average loss = {epoch_loss:.4f}")
+            if not args.no_save:
+                model.save(save_path)
+                print(f"saved to {save_path}")
+    except KeyboardInterrupt:
+        print("\nTraining interrupted.")
         if not args.no_save:
-            model.save(save_path)
-            print(f"saved to {save_path}")
+                model.save(save_path)
+                print(f"saved to {save_path}")
 
 if __name__ == "__main__":
     main()
