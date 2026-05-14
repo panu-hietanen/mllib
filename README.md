@@ -1,13 +1,10 @@
 # mllib
 
-A PyTorch-style autograd library written in C11. No dependencies beyond the C standard library.
+A PyTorch-style autograd library written in C11. Full training from creating NN layers to backprop, with no dependencies beyond the C standard library.
 
-Built as a learning project for myself to make sure I don't lose my machine learning background from uni. The long-term goal is a chess evaluation network, wiring the evaluator into [chess engine](https://github.com/panu-hietanen/chess_engine). This is a chess engine that I created myself also using Raylib!
+Built as a learning project for myself to make sure I don't lose my machine learning background from uni. The long-term goal is a chess evaluation network, wiring the evaluator into a chess game that I made
 
-I went into this project pretty blind to the programming principles of a library like this, I mainly had a theoretical background of NNs and machine learning.
-
-Find me at [Linkedin](https://www.linkedin.com/in/panuh/) and feel free to reach out to my email: panu.hietanen@gmail.com
-
+**[Devlog](https://panu-hietanen.github.io/mllib/devlog)** · **[Chess engine](https://github.com/panu-hietanen/chess_engine)**
 ---
 
 ## How it works
@@ -45,6 +42,8 @@ cd out/build/linux-release
 To make this even more like PyTorch, I wanted to be able to train in python using the standard techniques. I used ctypes for this as it seemed like the easiest to get started with. The arenas are hidden inside the `Model` class, leaving memory management out of the picture here (in classic python fashion).
 
 An example training script can be found [here](python/training_test.py)
+
+### Quick start
 ```python
 from mllib.nn import Model, Linear, ReLU
 
@@ -56,10 +55,10 @@ model = Model(
 
 loss = model.forward(X, y)   # X: np.ndarray (batch, features)
 model.backward()
-model.step()                 # adam update + arena clear
+model.step()                 # Adam update + arena clear
 
-model.save("weights/chess")  # weights + adam state + step count
-model.load("weights/chess")  # full resume
+model.save("weights/chess")
+model.load("weights/chess")  # full resume including optimizer state
 ```
 
 ---
@@ -100,6 +99,8 @@ Build output directory is `out/build/<preset>/`.
 
 ---
 
-## Devlog
-
-Full log of my process in making the project and some of the problems I ran into and design choices I had to make: [devlog](docs/devlog.md)
+## Background
+ 
+Built to try to use my theoretical knowledge from my Engineering degree. The devlog at the top covers the full design process (including the mistakes).
+ 
+[LinkedIn](https://www.linkedin.com/in/panuh/) · panu.hietanen@gmail.com
