@@ -64,5 +64,4 @@ if (NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Release")
 target_compile_options(mllib PRIVATE -march=native)
 endif()
 
-find_package(BLAS REQUIRED)
 target_link_libraries(mllib PUBLIC ${BLAS_LIBRARIES})

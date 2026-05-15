@@ -215,20 +215,12 @@ Tensor* tensor_matmul(mem_arena* arena, const Tensor* a, const Tensor* b)
 
 	i32 shape[MAX_DIMS] = { M, N };
 	Tensor* new = tensor_create(arena, shape, a->ndim, false);
-	for (i32 i = 0; i < M; ++i)
-	{
-		f32* restrict       out_row = new->data + i * N;
-		const f32* restrict a_row   = a->data   + i * K;
-		for (i32 k = 0; k < K; ++k)
-		{
-			f32 a_ik = a_row[k];
-			const f32* restrict b_row = b->data + k * N;
-			for (i32 j = 0; j < N; ++j)
-			{
-				out_row[j] += a_ik * b_row[j];
-			}
-		}
-	}
+	cblas_sgemm(
+		CblasRowMajor, CblasNoTrans, CblasNoTrans,
+		M, N, K,
+		1.0f, a->data, K, b->data, N,
+		0.0f, new->data, N
+	);
 	return new;
 }
 

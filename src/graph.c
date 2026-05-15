@@ -120,39 +120,23 @@ void matmul_backward(mem_arena* arena, const Tensor* t)
 	if (b->grad == NULL)
 		b->grad = tensor_zeros(arena, b->shape, b->ndim);
 
-	i32 batch = t->grad->shape[0];
-	i32 in    = a->shape[1];
-	i32 out   = b->shape[1];
+	i32 M = t->grad->shape[0];
+	i32 N = b->shape[0];
+	i32 K = t->grad->shape[1];
 
-	for (i32 j = 0; j < in; ++j)
-	{
-		const f32* restrict b_row = b->data + j * out;
-		for (i32 i = 0; i < batch; ++i)
-		{
-			const f32* restrict tg_row = t->grad->data + i * out;
-			f32 val = 0.0f;
-			for (i32 k = 0; k < out; ++k)
-			{
-				val += tg_row[k] * b_row[k];
-			}
-			a->grad->data[i * in + j] += val;
-		}
-	}
+	cblas_sgemm(
+		CblasRowMajor, CblasNoTrans, CblasTrans,
+		M, N, K,
+		1.0f, t->grad->data, K, b->data, K,
+		1.0f, a->grad->data, N
+	);
 
-	for (i32 k = 0; k < batch; ++k)
-	{
-		const f32* restrict tg_row = t->grad->data + k * out;
-		const f32* restrict a_row  = a->data        + k * in;
-		for (i32 i = 0; i < in; ++i)
-		{
-			f32* restrict bg_row = b->grad->data + i * out;
-			f32 a_ki = a_row[i];
-			for (i32 j = 0; j < out; ++j)
-			{
-				bg_row[j] += a_ki * tg_row[j];
-			}
-		}
-	}
+	cblas_sgemm(
+		CblasRowMajor, CblasTrans, CblasNoTrans,
+		N, K, M,
+		1.0f, a->data, N, t->grad->data, K,
+		1.0f, b->grad->data, K
+	);
 }
 
 void relu_backward(mem_arena* arena, const Tensor* t)

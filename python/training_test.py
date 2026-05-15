@@ -41,7 +41,7 @@ batches = n_datapoints // batch_size
 
 from mllib.data import load_chunk
 
-X, y = load_chunk("train_data/chessData.csv", skip=0, n=100)
+X, y = load_chunk("train_data/chessData.csv", skip=0, n=100, mirror=False)
 print(X.shape, y.shape)
 print(y[:5])
 
