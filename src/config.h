@@ -10,6 +10,7 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <cblas.h>
 
 typedef int8_t i8;
 typedef int16_t i16;

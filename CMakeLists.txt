@@ -31,10 +31,13 @@ if (UNIX)
     target_link_libraries(mllib_core PUBLIC m)
 endif()
 
+find_package(BLAS REQUIRED)
+target_link_libraries(mllib_core PUBLIC ${BLAS_LIBRARIES})
+
 # Helper macro to add examples
 macro(add_example name)
-    add_executable(${name} examples/${name}/main.c)
-    target_link_libraries(${name} PRIVATE mllib_core)
+add_executable(${name} examples/${name}/main.c)
+target_link_libraries(${name} PRIVATE mllib_core)
 endmacro()
 
 # Examples
@@ -46,17 +49,20 @@ add_example(load_weights)
 
 # Python bindings
 add_library(mllib SHARED
-    src/arena.c
-    src/tensor.c
-    src/node.c
-    src/graph.c
-    src/optimizer.c
-    src/data.c
+src/arena.c
+src/tensor.c
+src/node.c
+src/graph.c
+src/optimizer.c
+src/data.c
 )
 target_include_directories(mllib PUBLIC src)
 if (UNIX)
-    target_link_libraries(mllib PUBLIC m)
+target_link_libraries(mllib PUBLIC m)
 endif()
 if (NOT MSVC AND CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(mllib PRIVATE -march=native)
+target_compile_options(mllib PRIVATE -march=native)
 endif()
+
+find_package(BLAS REQUIRED)
+target_link_libraries(mllib PUBLIC ${BLAS_LIBRARIES})
