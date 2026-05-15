@@ -158,20 +158,23 @@ def _expand_sparse(indices: NDArray) -> NDArray:
     return X
 
 def load_preprocessed_chunk(indices_path: str, labels_path: str, skip: int, n: int, mirror: bool) -> tuple[NDArray, NDArray]:
-    indices = np.load(indices_path, mmap_mode='r')[skip:skip+n]
-    raw_evals = np.load(labels_path,  mmap_mode='r')[skip:skip+n]
+    X_mmap = np.load(indices_path, mmap_mode='r')
+    y_mmap = np.load(labels_path,  mmap_mode='r')
+    return load_from_mmap(X_mmap, y_mmap, skip, n, mirror)
+
+def load_from_mmap(X_mmap: NDArray, y_mmap: NDArray, skip: int, n: int, mirror: bool) -> tuple[NDArray, NDArray]:
+    indices   = X_mmap[skip:skip+n]
+    raw_evals = y_mmap[skip:skip+n]
     batch_size = len(indices)
     if batch_size == 0:
         return np.zeros((0, FEATURES), dtype=np.float32), np.zeros((0, 1), dtype=np.float32)
 
-    y   = _soft_label(raw_evals)
-
-    X   = _expand_sparse(indices)
+    y = _soft_label(raw_evals)
+    X = _expand_sparse(indices)
 
     if mirror:
         indices_m = _mirror_sparse(indices)
-        y_m = (1.0 - y).astype(np.float32)
         X_m = _expand_sparse(indices_m)
-        return np.vstack([X, X_m]), np.vstack([y, y_m])
+        return np.vstack([X, X_m]), np.vstack([y, (1.0 - y).astype(np.float32)])
     else:
         return X, y
