@@ -138,6 +138,8 @@ class Model:
         out = x_tensor
         for layer in self.layers:
             out = layer._forward(self.arena_t, out)
+        if self.loss == "sigmoid_bce":
+            out = Tensor(graph_sigmoid(self.arena_t._ptr, out._ptr))
         result = out.to_numpy()
         self.arena_t.clear()
         return result

@@ -56,12 +56,12 @@ def main():
 
                 if n_chunks % 100 == 0:
                     print(f"epoch {epoch}, chunk {n_chunks}: loss = {epoch_loss / (n_chunks + 1):.4f}")
-                if not args.no_save and n_chunks % 5000 == 0:
-                    model.save(save_path)
-                    print(f"saved to {save_path}")
         
                 n += args.chunk_size
                 n_chunks += 1
+                if not args.no_save and n_chunks % 5000 == 0:
+                    model.save(save_path)
+                    print(f"saved to {save_path}")
 
             epoch_loss /= n_chunks
             print(f"epoch {epoch} complete: average loss = {epoch_loss:.4f}")
