@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from mllib.nn import Model, Linear, ReLU
-from mllib.data import load_chunk, load_preprocessed_chunk, FEATURES
+from mllib.data import load_chunk, load_from_mmap, FEATURES
 
 def parse_args():
     p = argparse.ArgumentParser(description="Train chess evaluation network")
@@ -36,6 +36,10 @@ def main():
         print(f"Resuming from {load_path}")
         model.load(load_path)
 
+    if args.preprocessed:
+        X_mmap = np.load(data_path + "_X.npy", mmap_mode='r')
+        y_mmap = np.load(data_path + "_y.npy", mmap_mode='r')
+
     try:
         for epoch in range(args.epochs):
             epoch_loss = 0.0
@@ -43,9 +47,7 @@ def main():
             n_chunks = 0
             while True:
                 if args.preprocessed:
-                    path_indices = data_path + "_X.npy"
-                    path_labels = data_path + "_y.npy"
-                    X, y = load_preprocessed_chunk(path_indices, path_labels, skip=n, n=args.chunk_size, mirror=args.mirror)
+                    X, y = load_from_mmap(X_mmap, y_mmap, skip=n, n=args.chunk_size, mirror=args.mirror)
                 else:
                     X, y = load_chunk(data_path, skip=n, n=args.chunk_size, mirror=args.mirror)
                 if len(X) == 0:
