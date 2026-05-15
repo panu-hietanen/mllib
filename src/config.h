@@ -31,7 +31,9 @@ typedef double f64;
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define ALIGN_UP_POW2(n, p) (((u64)(n) + ((u64)(p) - 1)) & (~((u64)(p) - 1)))
 
-#define MAX_DIMS 8
+#define MAX_DIMS  8
 #define MAX_NODES 1024
+
+#define TILE      32
 
 #endif // !CONFIG_H__
